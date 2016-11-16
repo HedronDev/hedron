@@ -1,0 +1,6 @@
+composer.phar
+composer.lock
+build_test_coverage.sh
+/vendor/
+/.idea/
+/build/

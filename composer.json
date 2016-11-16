@@ -1,0 +1,22 @@
+{
+    "name": "worx/worx_ci",
+    "description": "Provides a continuous integration solution for worx git repositories.",
+    "authors": [
+        {
+            "name": "Kris Vanderwater",
+            "email": "kris.vanderwater@gmail.com",
+            "homepage": "http://www.krisvanderwater.com",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Worx\\CI\\": "src/"
+        }
+    },
+    "require": {
+        "guzzlehttp/guzzle": "^6.2",
+        "symfony/console": "^3.1",
+        "eclipsegc/plugins_annotation": "^0.1.0"
+    }
+}
