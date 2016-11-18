@@ -5,57 +5,55 @@ namespace Worx\CI;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Application;
+use Worx\CI\Configuration\ParserVariableConfiguration;
 
 class GitPostReceiveHandler extends Application
 {
-  private $output;
-  private $input;
+  protected $output;
+  protected $input;
 
-  protected $oldRevision;
-
-  protected $newRevision;
-
-  protected $referenceName;
-
-  protected $branch;
+  /**
+   * @var \Worx\CI\Configuration\ParserVariableConfiguration
+   */
+  protected $configuration;
 
   /**
    * @var \Worx\CI\FileParserInterface[]
    */
   protected $fileParsers;
 
+  protected $committedFiles;
+
+  protected $allFiles;
+
+  protected $intersectFiles;
+
   /**
    * PostReceiveHandler constructor.
    *
-   * @param string $parameters
+   * @param \Worx\CI\Configuration\ParserVariableConfiguration $configuration
    * @param \Worx\CI\FileParserInterface[] $fileParsers
    */
-  public function __construct($parameters, FileParserInterface ...$fileParsers)
+  public function __construct(ParserVariableConfiguration $configuration, FileParserInterface ...$fileParsers)
   {
-    list($oldrev, $newrev, $refname) = explode(' ', $parameters);
-    list(,, $branch) = explode('/', $refname);
-    $this->oldRevision = $oldrev;
-    $this->newRevision = $newrev;
-    $this->referenceName = $refname;
-    $this->branch = $branch;
-    $this->artifactDirectory = '~/opt/artifact/' . $branch;
+    $this->configuration = $configuration;
     $this->fileParsers = $fileParsers;
-    parent::__construct('Git Post Receive handler', '0.0.1');
+    parent::__construct('Git Post Receive handler', '0.0.2');
   }
 
   /**
-   * {@inheritdoc}
+   * {@inheritdoc}GitPostReceiveHandler
    */
   public function doRun(InputInterface $input, OutputInterface $output)
   {
     $this->input = $input;
     $this->output = $output;
     //$output->writeln('<info>' . shell_exec("git diff {$this->oldRevision}..{$this->newRevision}") . '</info>');
-    $committedFiles = $this->extractCommittedFiles();
-    $allFiles = $this->extractTopLevelFiles();
-    $intersectFiles = array_intersect_assoc($committedFiles, $allFiles);
-    $output->writeln('<info>' . print_r($intersectFiles, TRUE) . '</info>');
-    $this->parseFiles($intersectFiles, $committedFiles, $allFiles);
+    $this->committedFiles = $this->extractCommittedFiles();
+    $this->allFiles = $this->extractTopLevelFiles();
+    $this->intersectFiles = array_intersect($this->allFiles, $this->committedFiles);
+    $output->writeln('<info>' . print_r($this->intersectFiles, TRUE) . '</info>');
+    $this->parseFiles();
   }
 
   /**
@@ -65,7 +63,7 @@ class GitPostReceiveHandler extends Application
    */
   protected function extractCommittedFiles()
   {
-    return explode(PHP_EOL, trim(shell_exec("git diff-tree --no-commit-id --name-only -r {$this->newRevision}")));
+    return explode(PHP_EOL, trim(shell_exec("git diff-tree --no-commit-id --name-only -r {$this->configuration->getNewRevision()}")));
   }
 
   /**
@@ -78,11 +76,42 @@ class GitPostReceiveHandler extends Application
     return explode(PHP_EOL, trim(shell_exec("git ls-tree --full-tree --name-only HEAD")));
   }
 
-  public function parseFiles(array $intersect, array $committed, array $all)
+  public function parseFiles()
   {
     foreach ($this->fileParsers as $parser) {
-      $parser->parse($intersect, $committed, $all, $this->output);
+      $parser->parse($this);
     }
+  }
+
+  public function getCommittedFiles()
+  {
+    return $this->committedFiles;
+  }
+
+  public function getTopLevelFiles()
+  {
+    return $this->allFiles;
+  }
+
+  public function getIntersectFiles()
+  {
+    return $this->intersectFiles;
+  }
+
+  /**
+   * @return OutputInterface
+   */
+  public function getOutput()
+  {
+    return $this->output;
+  }
+
+  /**
+   * @return \Worx\CI\Configuration\ParserVariableConfiguration
+   */
+  public function getConfiguration()
+  {
+    return $this->configuration;
   }
 
 }

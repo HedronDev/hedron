@@ -11,16 +11,17 @@ use Worx\CI\ParserDictionary;
 
 // Extract namespaces to find any available plugins.
 $namespaces = Bootstrap::extractNamespaces($autoloader);
+$environment = Bootstrap::getEnvironmentVariables();
 
 // Setup the parser plugin dictionary and a project filter.
 $parserDictionary = new ParserDictionary($namespaces);
-$filter = new ProjectTypeFilter('php');
-
+$filter = new ProjectTypeFilter($environment->getProjectType());
+$config = Bootstrap::getConfiguration(trim(fgets(STDIN)));
 // Get the list of available parser for the give project type.
-$plugins = Bootstrap::getValidParsers($parserDictionary, $filter);
+$plugins = Bootstrap::getValidParsers($environment, $config, $parserDictionary, $filter);
 
 // Operate against the git post-receive hook.
-$console = new GitPostReceiveHandler(trim(fgets(STDIN)), ...$plugins);
+$console = new GitPostReceiveHandler($config, ...$plugins);
 $console->run();
 
 ?>

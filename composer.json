@@ -17,6 +17,7 @@
     "require": {
         "guzzlehttp/guzzle": "^6.2",
         "symfony/console": "^3.1",
-        "eclipsegc/plugins_annotation": "^0.1.0"
+        "eclipsegc/plugins_annotation": "^0.1.0",
+        "symfony/yaml": "^3.1"
     }
 }
