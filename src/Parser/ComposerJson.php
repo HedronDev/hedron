@@ -20,10 +20,8 @@ class ComposerJson extends BaseParser {
     if (array_search('composer.json', $handler->getIntersectFiles()) !== FALSE) {
       $configuration = $this->getConfiguration();
       $environment = $this->getEnvironment();
-      $clientDir = "{$environment->getClient()}_{$configuration->getBranch()}";
+      $clientDir = "{$environment->getClient()}-{$configuration->getBranch()}";
       $commands = [];
-      $commands[] = "unset GIT_DIR";
-      $commands[] = "git -C {$environment->getGitDirectory()}/$clientDir pull";
       $commands[] = "rsync -av --exclude=docker --exclude=.git {$environment->getGitDirectory()}/$clientDir/ {$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}";
       $commands[] = "cd {$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}";
       if (file_exists("{$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}/composer.lock")) {
