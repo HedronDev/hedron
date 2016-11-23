@@ -7,7 +7,7 @@ use Worx\CI\GitPostReceiveHandler;
 /**
  * @Worx\CI\Annotation\Parser(
  *   pluginId = "docker_compose",
- *   priority = "100"
+ *   priority = "950"
  * )
  */
 class DockerCompose extends BaseParser {

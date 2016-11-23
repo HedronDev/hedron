@@ -22,7 +22,6 @@ class ComposerJson extends BaseParser {
       $environment = $this->getEnvironment();
       $clientDir = "{$environment->getClient()}-{$configuration->getBranch()}";
       $commands = [];
-      $commands[] = "rsync -av --exclude=docker --exclude=.git {$environment->getGitDirectory()}/$clientDir/ {$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}";
       $commands[] = "cd {$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}";
       if (file_exists("{$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}/composer.lock")) {
         $commands[] = "composer update";

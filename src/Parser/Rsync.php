@@ -6,11 +6,12 @@ use Worx\CI\GitPostReceiveHandler;
 
 /**
  * @Worx\CI\Annotation\Parser(
- *   pluginId = "git_pull",
- *   priority = "1000"
+ *   pluginId = "rsync",
+ *   project_type = "php",
+ *   priority = "900"
  * )
  */
-class GitPull extends BaseParser {
+class Rsync extends BaseParser {
 
   /**
    * {@inheritdoc}
@@ -20,13 +21,7 @@ class GitPull extends BaseParser {
     $environment = $this->getEnvironment();
     $clientDir = "{$environment->getClient()}-{$configuration->getBranch()}";
     $commands = [];
-    if (file_exists("{$environment->getGitDirectory()}/$clientDir")) {
-      $commands[] = "unset GIT_DIR";
-      $commands[] = "git -C {$environment->getGitDirectory()}/$clientDir pull";
-    }
-    else {
-      $commands[] = "git clone --branch {$configuration->getBranch()} {$environment->getGitRepository()} {$environment->getGitDirectory()}/$clientDir";
-    }
+    $commands[] = "rsync -av --exclude=docker --exclude=.git {$environment->getGitDirectory()}/$clientDir/ {$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}";
     $handler->getOutput()->writeln('<info>' . shell_exec(implode('; ', $commands)) . '</info>');
   }
 
