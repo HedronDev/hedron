@@ -17,6 +17,17 @@ class Parser extends AnnotatedPluginDefinition {
   protected $project_type = 'all';
 
   /**
+   * The project types to avoid working against.
+   *
+   * This is only really useful for parsers of project_type "all". It allows
+   * the parser to specify any project types it should not work against as
+   * opposed to projects it should be working against.
+   *
+   * @var array
+   */
+  protected $exclude = [];
+
+  /**
    * The priority of the parser.
    *
    * @var int
@@ -30,6 +41,15 @@ class Parser extends AnnotatedPluginDefinition {
    */
   public function getProjectType() {
     return $this->project_type;
+  }
+
+  /**
+   * Retrieves a list of project types this parser should not work against.
+   *
+   * @return array
+   */
+  public function getExclusions() {
+    return $this->exclude;
   }
 
   /**

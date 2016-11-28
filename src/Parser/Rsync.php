@@ -7,7 +7,9 @@ use Worx\CI\GitPostReceiveHandler;
 /**
  * @Worx\CI\Annotation\Parser(
  *   pluginId = "rsync",
- *   project_type = "php",
+ *   exclude = {
+ *     "drupal"
+ *   },
  *   priority = "900"
  * )
  */

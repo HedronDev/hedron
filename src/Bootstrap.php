@@ -106,4 +106,5 @@ class Bootstrap {
   public static function sortPlugins(FileParserInterface $a, FileParserInterface $b) {
     return $a->getPluginDefinition()->getPriority() < $b->getPluginDefinition()->getPriority();
   }
+
 }

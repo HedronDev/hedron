@@ -52,8 +52,9 @@ class GitPostReceiveHandler extends Application
     $this->committedFiles = $this->extractCommittedFiles();
     $this->allFiles = $this->extractTopLevelFiles();
     $this->intersectFiles = array_intersect($this->allFiles, $this->committedFiles);
-    $output->writeln('<info>' . print_r($this->intersectFiles, TRUE) . '</info>');
-    $this->parseFiles();
+    if ($this->getConfiguration()->execute()) {
+      $this->parseFiles();
+    }
   }
 
   /**

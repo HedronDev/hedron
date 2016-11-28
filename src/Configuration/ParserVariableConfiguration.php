@@ -13,6 +13,13 @@ class ParserVariableConfiguration {
 
   protected $newRevision;
 
+  /**
+   * Determines if parsers should even be fired.
+   *
+   * @var bool
+   */
+  protected $execute;
+
   protected $referenceName;
 
   protected $branch;
@@ -27,6 +34,7 @@ class ParserVariableConfiguration {
   public function __construct($oldRevision, $newRevision, $referenceName, $branch) {
     $this->oldRevision = $oldRevision;
     $this->newRevision = $newRevision;
+    $this->execute = $newRevision != '0000000000000000000000000000000000000000';
     $this->referenceName = $referenceName;
     $this->branch = $branch;
   }
@@ -37,6 +45,10 @@ class ParserVariableConfiguration {
 
   public function getNewRevision() {
     return $this->newRevision;
+  }
+
+  public function execute() {
+    return $this->execute;
   }
 
   public function getReferenceName() {

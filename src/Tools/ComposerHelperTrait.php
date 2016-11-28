@@ -1,0 +1,93 @@
+<?php
+
+/**
+ * @file
+ * Contains \Worx\CI\ComposerHelperTrait.
+ */
+
+namespace Worx\CI\Tools;
+
+trait ComposerHelperTrait {
+
+  /**
+   * Merges the original composer file with the new file provided by drupal.
+   *
+   * This ensures that the composer.json file that is going to be installed
+   * will have all the appropriate requirements documented by the git
+   * repository that is kept up to date by the client.
+   *
+   * @param string $composer_file
+   *   The absolute path to the composer file to write.
+   * @param \stdClass $original_composer
+   *   The original composer.json file before it was removed as a php object.
+   * @param \stdClass $new_composer
+   *   The new composer.json file as a php object.
+   * @param callable $callback
+   *   A callback if necessary to customize the composer object further.
+   *
+   * @return array
+   */
+  protected function mergeComposerJsonFiles(string $composer_file, \stdClass $original_composer, \stdClass $new_composer, callable $callback = NULL) {
+    $new_composer = $this->mergeComposerObjects($original_composer, $new_composer, $callback);
+    $composer_content = file_get_contents($composer_file);
+    $replace_composer = json_decode($composer_content);
+    $removals = $this->calculateRemovedRequirements($replace_composer, $new_composer);
+    if (file_put_contents($composer_file, json_encode($new_composer, JSON_PRETTY_PRINT)) !== FALSE) {
+      return $removals;
+    }
+  }
+
+  /**
+   * Merges two composer objects into one.
+   *
+   * @param \stdClass $original_composer
+   *   The original composer.json file before it was removed as a php object.
+   * @param \stdClass $new_composer
+   *   The new composer file to generate.
+   * @param callable $callback
+   *   A callback if necessary to customize the composer object further.
+   *
+   * @return \stdClass
+   *   An object representing the merged composer json files.
+   */
+  protected function mergeComposerObjects(\stdClass $original_composer, \stdClass $new_composer, callable  $callback = NULL) {
+    foreach ($original_composer as $key => $values) {
+      $is_array = is_array($values);
+      $values = (array) $values;
+      if (isset($new_composer->{$key})) {
+        $drupal_values = (array) $new_composer->{$key};
+        $values = array_merge($drupal_values, $values);
+      }
+      $new_composer->{$key} = $is_array ? $values : (object) $values;
+    }
+    if ($callback) {
+      call_user_func($callback, $new_composer);
+    }
+    return $new_composer;
+  }
+
+  /**
+   * Calculated requirements that need to be removed from the system.
+   *
+   * @param $replace_composer
+   *   Composer object about to be replaced.
+   * @param $new_composer
+   *   Composer object doing the replacing.
+   *
+   * @return array
+   *   An array of requirements to remove.
+   */
+  protected function calculateRemovedRequirements($replace_composer, $new_composer) {
+    $removals = [];
+    foreach (['require', 'require-dev'] as $key) {
+      $old_requirements = !empty($replace_composer->{$key}) ? $replace_composer->{$key} : [];
+      $new_requirements = !empty($new_composer->{$key}) ? $new_composer->{$key} : [];
+      foreach ($old_requirements as $requirement => $version) {
+        if (empty($new_requirements->{$requirement})) {
+          $removals[] = $requirement;
+        }
+      }
+    }
+    return $removals;
+  }
+}
