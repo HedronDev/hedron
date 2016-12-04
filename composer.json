@@ -8,6 +8,12 @@
             "homepage": "http://www.krisvanderwater.com",
             "role": "Developer"
         }
+        {
+            "name": "Kurt Vanderwater",
+            "email": "kurt@worxco.com",
+            "homepage": "http://worxco.com",
+            "role": "SysOp"
+        }
     ],
     "autoload": {
         "psr-4": {
