@@ -2,6 +2,7 @@
 
 namespace Worx\CI\Parser;
 
+use Worx\CI\Command\CommandStackInterface;
 use Worx\CI\GitPostReceiveHandler;
 
 /**
@@ -18,13 +19,12 @@ class Rsync extends BaseParser {
   /**
    * {@inheritdoc}
    */
-  public function parse(GitPostReceiveHandler $handler) {
+  public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $configuration = $this->getConfiguration();
     $environment = $this->getEnvironment();
     $clientDir = "{$environment->getClient()}-{$configuration->getBranch()}";
-    $commands = [];
-    $commands[] = "rsync -av --exclude=docker --exclude=.git {$environment->getGitDirectory()}/$clientDir/ {$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}";
-    $handler->getOutput()->writeln('<info>' . shell_exec(implode('; ', $commands)) . '</info>');
+    $commandStack->addCommand("rsync -av --exclude=docker --exclude=.git {$environment->getGitDirectory()}/$clientDir/ {$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}");
+    $commandStack->execute();
   }
 
 }

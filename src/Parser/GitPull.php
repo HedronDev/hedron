@@ -2,6 +2,7 @@
 
 namespace Worx\CI\Parser;
 
+use Worx\CI\Command\CommandStackInterface;
 use Worx\CI\GitPostReceiveHandler;
 
 /**
@@ -15,19 +16,18 @@ class GitPull extends BaseParser {
   /**
    * {@inheritdoc}
    */
-  public function parse(GitPostReceiveHandler $handler) {
+  public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $configuration = $this->getConfiguration();
     $environment = $this->getEnvironment();
     $clientDir = "{$environment->getClient()}-{$configuration->getBranch()}";
-    $commands = [];
     if (file_exists("{$environment->getGitDirectory()}/$clientDir")) {
-      $commands[] = "unset GIT_DIR";
-      $commands[] = "git -C {$environment->getGitDirectory()}/$clientDir pull";
+      $commandStack->addCommand("unset GIT_DIR");
+      $commandStack->addCommand("git -C {$environment->getGitDirectory()}/$clientDir pull");
     }
     else {
-      $commands[] = "git clone --branch {$configuration->getBranch()} {$environment->getGitRepository()} {$environment->getGitDirectory()}/$clientDir";
+      $commandStack->addCommand("git clone --branch {$configuration->getBranch()} {$environment->getGitRepository()} {$environment->getGitDirectory()}/$clientDir");
     }
-    $handler->getOutput()->writeln('<info>' . shell_exec(implode('; ', $commands)) . '</info>');
+    $commandStack->execute();
   }
 
 }

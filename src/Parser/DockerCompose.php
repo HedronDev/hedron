@@ -2,6 +2,8 @@
 
 namespace Worx\CI\Parser;
 
+use Symfony\Component\Filesystem\Filesystem;
+use Worx\CI\Command\CommandStackInterface;
 use Worx\CI\GitPostReceiveHandler;
 
 /**
@@ -12,7 +14,7 @@ use Worx\CI\GitPostReceiveHandler;
  */
 class DockerCompose extends BaseParser {
 
-  public function parse(GitPostReceiveHandler $handler) {
+  public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $parse = FALSE;
     foreach ($handler->getCommittedFiles() as $file_name) {
       if (strpos($file_name, 'docker/') === 0) {
@@ -27,24 +29,23 @@ class DockerCompose extends BaseParser {
       $parse = TRUE;
     }
     if ($parse) {
-      $commands = [];
       if ($environment->getHost() != 'localhost') {
-        $commands[] = "ssh root@{$environment->getHost()}";
+        $commandStack->addCommand("ssh root@{$environment->getHost()}");
       }
       if (file_exists("{$environment->getDockerDirectory()}/$clientDir")) {
-        $commands[] = "rsync -av --delete {$environment->getGitDirectory()}/$clientDir/docker/ {$environment->getDockerDirectory()}/$clientDir";
-        $commands[] = "cd {$environment->getDockerDirectory()}/$clientDir";
-        $commands[] = "docker-compose down";
-        $commands[] = "docker-compose build";
-        $commands[] = "docker-compose up -d";
+        $commandStack->addCommand("rsync -av --delete {$environment->getGitDirectory()}/$clientDir/docker/ {$environment->getDockerDirectory()}/$clientDir");
+        $commandStack->addCommand("cd {$environment->getDockerDirectory()}/$clientDir");
+        $commandStack->addCommand("docker-compose down");
+        $commandStack->addCommand("docker-compose build");
+        $commandStack->addCommand("docker-compose up -d");
       }
       else {
-        $commands[] = "mkdir {$environment->getDockerDirectory()}/$clientDir";
-        $commands[] = "cp -r {$environment->getGitDirectory()}/$clientDir/docker/. {$environment->getDockerDirectory()}/$clientDir";
-        $commands[] = "cd {$environment->getDockerDirectory()}/$clientDir";
-        $commands[] = "docker-compose up -d";
+        $commandStack->addCommand("mkdir {$environment->getDockerDirectory()}/$clientDir");
+        $commandStack->addCommand("cp -r {$environment->getGitDirectory()}/$clientDir/docker/. {$environment->getDockerDirectory()}/$clientDir");
+        $commandStack->addCommand("cd {$environment->getDockerDirectory()}/$clientDir");
+        $commandStack->addCommand("docker-compose up -d");
       }
-      $handler->getOutput()->writeln('<info>' . shell_exec(implode('; ', $commands)) . '</info>');
+      $commandStack->execute();
     }
   }
 

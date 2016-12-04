@@ -13,6 +13,7 @@ use Symfony\Component\Yaml\Yaml;
 use Worx\CI\Configuration\EnvironmentVariables;
 use Worx\CI\Configuration\ParserVariableConfiguration;
 use Worx\CI\Exception\MissingEnvironmentConfigurationException;
+use Worx\CI\File\FileSystemInterface;
 
 class Bootstrap {
 
@@ -76,6 +77,8 @@ class Bootstrap {
    *   The environment configuration.
    * @param \Worx\CI\Configuration\ParserVariableConfiguration $configuration
    *   The git repository configuration.
+   * @param \Worx\CI\File\FileSystemInterface $fileSystem
+   *   A file system object.
    * @param \Worx\CI\ParserDictionary $dictionary
    *   The parser plugin dictionary
    * @param \EclipseGc\Plugin\Filter\PluginDefinitionFilterInterface[] ...$filters
@@ -84,10 +87,10 @@ class Bootstrap {
    * @return \Worx\CI\FileParserInterface[]
    *   The valid parser plugins.
    */
-  public static function getValidParsers(EnvironmentVariables $environment, ParserVariableConfiguration $configuration, ParserDictionary $dictionary, PluginDefinitionFilterInterface ...$filters) {
+  public static function getValidParsers(EnvironmentVariables $environment, ParserVariableConfiguration $configuration, FileSystemInterface $fileSystem, ParserDictionary $dictionary, PluginDefinitionFilterInterface ...$filters) {
     $plugins = [];
     foreach ($dictionary->getFilteredDefinitions(...$filters) as $pluginDefinition) {
-      $plugins[] = $dictionary->createInstance($pluginDefinition->getPluginId(), $pluginDefinition, $environment, $configuration);
+      $plugins[] = $dictionary->createInstance($pluginDefinition->getPluginId(), $pluginDefinition, $environment, $configuration, $fileSystem);
     }
     usort($plugins, '\Worx\CI\Bootstrap::sortPlugins');
     return $plugins;

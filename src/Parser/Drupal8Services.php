@@ -3,6 +3,7 @@
 namespace Worx\CI\Parser;
 
 use Symfony\Component\Yaml\Yaml;
+use Worx\CI\Command\CommandStackInterface;
 use Worx\CI\GitPostReceiveHandler;
 
 /**
@@ -17,7 +18,7 @@ class Drupal8Services extends BaseParser {
   /**
    * {@inheritdoc}
    */
-  public function parse(GitPostReceiveHandler $handler) {
+  public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $settings_path = "{$this->getSiteDirectoryPath()}/sites/default";
     // @todo identify multisite
     if (file_exists("$settings_path/default.services.yml")) {

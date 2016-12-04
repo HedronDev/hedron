@@ -5,6 +5,8 @@
 $autoloader = require __DIR__ . '/../../vendor/autoload.php';
 
 use Worx\CI\Bootstrap;
+use Worx\CI\Command\CommandStackFactory;
+use Worx\CI\File\FileSystem;
 use Worx\CI\Filter\ProjectTypeFilter;
 use Worx\CI\GitPostReceiveHandler;
 use Worx\CI\ParserDictionary;
@@ -17,11 +19,14 @@ $environment = Bootstrap::getEnvironmentVariables();
 $parserDictionary = new ParserDictionary($namespaces);
 $filter = new ProjectTypeFilter($environment->getProjectType());
 $config = Bootstrap::getConfiguration(trim(fgets(STDIN)));
-// Get the list of available parser for the give project type.
-$plugins = Bootstrap::getValidParsers($environment, $config, $parserDictionary, $filter);
+// Setup the file system.
+$fileSystem = new FileSystem();
+// Get the list of available parser for the given project type.
+$plugins = Bootstrap::getValidParsers($environment, $config, $fileSystem, $parserDictionary, $filter);
 
 // Operate against the git post-receive hook.
-$console = new GitPostReceiveHandler($config, ...$plugins);
+$commandStackFactory = new CommandStackFactory();
+$console = new GitPostReceiveHandler($config, $commandStackFactory, ...$plugins);
 $console->run();
 
 ?>

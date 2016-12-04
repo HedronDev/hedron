@@ -2,6 +2,7 @@
 
 namespace Worx\CI\Parser;
 
+use Worx\CI\Command\CommandStackInterface;
 use Worx\CI\GitPostReceiveHandler;
 
 /**
@@ -16,20 +17,19 @@ class ComposerJson extends BaseParser {
   /**
    * {@inheritdoc}
    */
-  public function parse(GitPostReceiveHandler $handler) {
+  public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     if (array_search('composer.json', $handler->getIntersectFiles()) !== FALSE) {
       $configuration = $this->getConfiguration();
       $environment = $this->getEnvironment();
       $clientDir = "{$environment->getClient()}-{$configuration->getBranch()}";
-      $commands = [];
-      $commands[] = "cd {$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}";
+      $commandStack->addCommand("cd {$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}");
       if (file_exists("{$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}/composer.lock")) {
-        $commands[] = "composer update";
+        $commandStack->addCommand("composer update");
       }
       else {
-        $commands[] = "composer install";
+        $commandStack->addCommand("composer install");
       }
-      $handler->getOutput()->writeln('<info>' . shell_exec(implode('; ', $commands)) . '</info>');
+      $commandStack->execute();
     }
   }
 

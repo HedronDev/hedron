@@ -5,6 +5,8 @@ namespace Worx\CI;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Application;
+use Worx\CI\Command\CommandStack;
+use Worx\CI\Command\CommandStackFactoryInterface;
 use Worx\CI\Configuration\ParserVariableConfiguration;
 
 class GitPostReceiveHandler extends Application
@@ -16,6 +18,11 @@ class GitPostReceiveHandler extends Application
    * @var \Worx\CI\Configuration\ParserVariableConfiguration
    */
   protected $configuration;
+
+  /**
+   * @var \Worx\CI\Command\CommandStackFactoryInterface
+   */
+  protected $commandStackFactory;
 
   /**
    * @var \Worx\CI\FileParserInterface[]
@@ -32,11 +39,13 @@ class GitPostReceiveHandler extends Application
    * PostReceiveHandler constructor.
    *
    * @param \Worx\CI\Configuration\ParserVariableConfiguration $configuration
+   * @param \Worx\CI\Command\CommandStackFactoryInterface $commandStackFactory
    * @param \Worx\CI\FileParserInterface[] $fileParsers
    */
-  public function __construct(ParserVariableConfiguration $configuration, FileParserInterface ...$fileParsers)
+  public function __construct(ParserVariableConfiguration $configuration, CommandStackFactoryInterface $commandStackFactory, FileParserInterface ...$fileParsers)
   {
     $this->configuration = $configuration;
+    $this->commandStackFactory = $commandStackFactory;
     $this->fileParsers = $fileParsers;
     parent::__construct('Git Post Receive handler', '0.0.2');
   }
@@ -80,7 +89,7 @@ class GitPostReceiveHandler extends Application
   public function parseFiles()
   {
     foreach ($this->fileParsers as $parser) {
-      $parser->parse($this);
+      $parser->parse($this, $this->commandStackFactory->create($this->getOutput()));
     }
   }
 

@@ -7,6 +7,8 @@
 
 namespace Worx\CI\Tools;
 
+use Composer\Semver\Comparator;
+
 trait ComposerHelperTrait {
 
   /**
@@ -31,9 +33,10 @@ trait ComposerHelperTrait {
     $new_composer = $this->mergeComposerObjects($original_composer, $new_composer, $callback);
     $composer_content = file_get_contents($composer_file);
     $replace_composer = json_decode($composer_content);
-    $removals = $this->calculateRemovedRequirements($replace_composer, $new_composer);
+    $changes = $this->calculateRequirementChanges($replace_composer, $new_composer);
+    print print_r($changes, TRUE);
     if (file_put_contents($composer_file, json_encode($new_composer, JSON_PRETTY_PRINT)) !== FALSE) {
-      return $removals;
+      return $changes;
     }
   }
 
@@ -75,19 +78,32 @@ trait ComposerHelperTrait {
    *   Composer object doing the replacing.
    *
    * @return array
-   *   An array of requirements to remove.
+   *   An array of requirements to install, update or remove.
    */
-  protected function calculateRemovedRequirements($replace_composer, $new_composer) {
-    $removals = [];
+  protected function calculateRequirementChanges($replace_composer, $new_composer) {
+    $changes = [
+      'install' => [],
+      'update' => [],
+      'remove' => [],
+    ];
     foreach (['require', 'require-dev'] as $key) {
       $old_requirements = !empty($replace_composer->{$key}) ? $replace_composer->{$key} : [];
       $new_requirements = !empty($new_composer->{$key}) ? $new_composer->{$key} : [];
+      foreach ($new_requirements as $requirement => $version) {
+        if (empty($old_requirements->{$requirement})) {
+          $changes['install'][$requirement] = $version;
+        }
+        if ((!empty($old_requirements->{$requirement}) && Comparator::greaterThan($version, $old_requirements->{$requirement}))) {
+          $changes['update'][$requirement] = $version;
+        }
+      }
       foreach ($old_requirements as $requirement => $version) {
         if (empty($new_requirements->{$requirement})) {
-          $removals[] = $requirement;
+          $changes['remove'][] = $requirement;
         }
       }
     }
-    return $removals;
+    return $changes;
   }
+
 }

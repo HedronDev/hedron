@@ -6,6 +6,7 @@
  */
 
 namespace Worx\CI\Parser;
+use Worx\CI\Command\CommandStackInterface;
 use Worx\CI\GitPostReceiveHandler;
 
 /**
@@ -20,7 +21,7 @@ class Drupal8Settings extends BaseParser {
   /**
    * {@inheritdoc}
    */
-  public function parse(GitPostReceiveHandler $handler) {
+  public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $settings_path = "{$this->getSiteDirectoryPath()}/sites/default";
     if (!file_exists("$settings_path/settings.php") && file_exists("$settings_path/default.settings.php")) {
       // @todo add a foreach loop around something like:
@@ -31,8 +32,8 @@ class Drupal8Settings extends BaseParser {
 
       // @todo resepct the previous today about getSites() and also allow a
       // yaml file in the repository to be used to configure $settings.
-      $append = "if (isset(\$_SERVER['DELIVERY_SETTINGS_DIR']) && file_exists(\$_SERVER['DELIVERY_SETTINGS_DIR'] . \"/{\$this->getClientDirectoryName()}.inc\")) {
-  require \$_SERVER['DELIVERY_SETTINGS_DIR'] . \"/{\$this->getClientDirectoryName()}.inc\";
+      $append = "if (isset(\$_SERVER['DELIVERY_SETTINGS_DIR']) && file_exists(\$_SERVER['DELIVERY_SETTINGS_DIR'] . \"/{$this->getClientDirectoryName()}.inc\")) {
+  require \$_SERVER['DELIVERY_SETTINGS_DIR'] . \"/{$this->getClientDirectoryName()}.inc\";
 }";
 
       file_put_contents("$settings_path/settings.php", PHP_EOL.$append.PHP_EOL, FILE_APPEND | LOCK_EX);

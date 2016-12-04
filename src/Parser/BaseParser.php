@@ -10,6 +10,7 @@ namespace Worx\CI\Parser;
 use EclipseGc\Plugin\PluginDefinitionInterface;
 use Worx\CI\Configuration\EnvironmentVariables;
 use Worx\CI\Configuration\ParserVariableConfiguration;
+use Worx\CI\File\FileSystemInterface;
 use Worx\CI\FileParserInterface;
 
 abstract class BaseParser implements FileParserInterface {
@@ -43,6 +44,13 @@ abstract class BaseParser implements FileParserInterface {
   protected $configuration;
 
   /**
+   * The file system.
+   *
+   * @var \Worx\CI\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
    * BaseParser constructor.
    *
    * @param string $pluginId
@@ -52,11 +60,12 @@ abstract class BaseParser implements FileParserInterface {
    * @param \Worx\CI\Configuration\EnvironmentVariables $environment
    * @param \Worx\CI\Configuration\ParserVariableConfiguration $configuration
    */
-  public function __construct(string $pluginId, PluginDefinitionInterface $definition, EnvironmentVariables $environment, ParserVariableConfiguration $configuration) {
+  public function __construct(string $pluginId, PluginDefinitionInterface $definition, EnvironmentVariables $environment, ParserVariableConfiguration $configuration, FileSystemInterface $fileSystem) {
     $this->pluginId = $pluginId;
     $this->pluginDefinition = $definition;
     $this->environment = $environment;
     $this->configuration = $configuration;
+    $this->fileSystem = $fileSystem;
   }
 
   /**
@@ -109,6 +118,13 @@ abstract class BaseParser implements FileParserInterface {
    */
   protected function getGitDirectoryPath() {
     return "{$this->getEnvironment()->getGitDirectory()}/{$this->getClientDirectoryName()}";
+  }
+
+  /**
+   * @return \Worx\CI\File\FileSystemInterface
+   */
+  protected function getFileSystem() {
+    return $this->fileSystem;
   }
 
 }
