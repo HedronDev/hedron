@@ -30,4 +30,14 @@ class GitPull extends BaseParser {
     $commandStack->execute();
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
+    $dir = $this->getEnvironment()->getGitDirectory() . DIRECTORY_SEPARATOR . $this->getClientDirectoryName();
+    $commandStack->addCommand("rm -Rf $dir");
+    $commandStack->execute();
+  }
+
 }
+

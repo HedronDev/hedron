@@ -8,10 +8,12 @@
 namespace Worx\CI\Parser;
 
 use EclipseGc\Plugin\PluginDefinitionInterface;
+use Worx\CI\Command\CommandStackInterface;
 use Worx\CI\Configuration\EnvironmentVariables;
 use Worx\CI\Configuration\ParserVariableConfiguration;
 use Worx\CI\File\FileSystemInterface;
 use Worx\CI\FileParserInterface;
+use Worx\CI\GitPostReceiveHandler;
 
 abstract class BaseParser implements FileParserInterface {
 
@@ -126,5 +128,10 @@ abstract class BaseParser implements FileParserInterface {
   protected function getFileSystem() {
     return $this->fileSystem;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {}
 
 }

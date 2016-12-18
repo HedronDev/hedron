@@ -25,6 +25,15 @@ class ComposerDrupal8 extends BaseParser {
   /**
    * {@inheritdoc}
    */
+  public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
+    $commandStack->addCommand("find {$this->getSiteDirectoryPath()} -mindepth 1 -exec rm -rf {} \\;");
+    $commandStack->execute();
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
   public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $git_directory = $this->getGitDirectoryPath();
     $site_directory = $this->getSiteDirectoryPath();

@@ -57,12 +57,14 @@ class GitPostReceiveHandler extends Application
   {
     $this->input = $input;
     $this->output = $output;
-    //$output->writeln('<info>' . shell_exec("git diff {$this->oldRevision}..{$this->newRevision}") . '</info>');
     $this->committedFiles = $this->extractCommittedFiles();
     $this->allFiles = $this->extractTopLevelFiles();
     $this->intersectFiles = array_intersect($this->allFiles, $this->committedFiles);
     if ($this->getConfiguration()->execute()) {
       $this->parseFiles();
+    }
+    else {
+      $this->destroy();
     }
   }
 
@@ -124,4 +126,13 @@ class GitPostReceiveHandler extends Application
     return $this->configuration;
   }
 
+  public function destroy() {
+    // Parsers are sorted by priority, so to destroy a branch, we must fire in
+    // reverse order.
+    foreach (array_reverse($this->fileParsers) as $parser) {
+      $parser->destroy($this, $this->commandStackFactory->create($this->getOutput()));
+    }
+  }
+
 }
+

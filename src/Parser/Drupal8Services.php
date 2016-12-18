@@ -18,23 +18,32 @@ class Drupal8Services extends BaseParser {
   /**
    * {@inheritdoc}
    */
+  public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
+    $settings_path = "{$this->getSiteDirectoryPath()}/sites/default";
+    if ($this->fileSystem->exists($settings_path . DIRECTORY_SEPARATOR . "services.yml")) {
+      unlink($settings_path . DIRECTORY_SEPARATOR . "services.yml");
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $settings_path = "{$this->getSiteDirectoryPath()}/sites/default";
     // @todo identify multisite
-    if (file_exists("$settings_path/default.services.yml")) {
+    if (!file_exists("$settings_path/services.yml") && file_exists("$settings_path/default.services.yml")) {
       // @todo add a foreach loop around something like:
       // $environment->getSites() so that we can write the default to each site
       // in a multisite install.
       copy("$settings_path/default.services.yml", "$settings_path/services.yml");
       chmod("$settings_path/services.yml", 0775);
-
-      // @todo resepct the previous today about getSites() and also allow a
-      // yaml file in the repository to be used to configure $settings.
-      if (file_exists("{$this->getGitDirectoryPath()}/services.yml")) {
-        $current_services = Yaml::parse(file_get_contents("$settings_path/services.yml"));
-        $services_partial = Yaml::parse(file_get_contents("{$this->getGitDirectoryPath()}/services.yml"));
-        file_put_contents("$settings_path/services.yml", Yaml::dump($this->mergeArray($current_services, $services_partial), 10, 4, Yaml::DUMP_OBJECT_AS_MAP));
-      }
+    }
+    // @todo resepct the previous todo about getSites() and also allow a
+    // yaml file in the repository to be used to configure $settings.
+    if (file_exists("{$this->getGitDirectoryPath()}/services.yml") && file_exists("$settings_path/services.yml")) {
+      $current_services = Yaml::parse(file_get_contents("$settings_path/services.yml"));
+      $services_partial = Yaml::parse(file_get_contents("{$this->getGitDirectoryPath()}/services.yml"));
+      file_put_contents("$settings_path/services.yml", Yaml::dump($this->mergeArray($current_services, $services_partial), 10, 4, Yaml::DUMP_OBJECT_AS_MAP));
     }
   }
 
