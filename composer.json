@@ -1,6 +1,6 @@
 {
-    "name": "worx/worx_ci",
-    "description": "Provides a continuous integration solution for worx git repositories.",
+    "name": "hedron/hedron",
+    "description": "A git based development and hosting utility.",
     "authors": [
         {
             "name": "Kris Vanderwater",
@@ -17,13 +17,17 @@
     ],
     "autoload": {
         "psr-4": {
-            "Worx\\CI\\": "src/"
+            "Hedron\\": "src/"
         }
     },
     "require": {
+        "composer/semver": "^1.4",
         "guzzlehttp/guzzle": "^6.2",
         "symfony/console": "^3.1",
         "eclipsegc/plugins_annotation": "^0.1.0",
         "symfony/yaml": "^3.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~5.4"
     }
 }

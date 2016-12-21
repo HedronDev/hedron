@@ -1,11 +1,6 @@
 <?php
 
-/**
- * @file
- * Contains \Worx\CI\Configuration\ParserVariableConfiguration.
- */
-
-namespace Worx\CI\Configuration;
+namespace Hedron\Configuration;
 
 class ParserVariableConfiguration {
 

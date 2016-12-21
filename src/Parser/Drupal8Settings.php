@@ -2,15 +2,15 @@
 
 /**
  * @file
- * Contains \Worx\CI\Parser\DrupalSettings.
+ * Contains \Hedron\Parser\DrupalSettings.
  */
 
-namespace Worx\CI\Parser;
-use Worx\CI\Command\CommandStackInterface;
-use Worx\CI\GitPostReceiveHandler;
+namespace Hedron\Parser;
+use Hedron\Command\CommandStackInterface;
+use Hedron\GitPostReceiveHandler;
 
 /**
- * @Worx\CI\Annotation\Parser(
+ * @Hedron\Annotation\Parser(
  *   pluginId = "drupal_8_settings",
  *   project_type = "drupal",
  *   priority = "8"

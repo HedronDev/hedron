@@ -2,16 +2,16 @@
 
 /**
  * @file
- * Contains \Worx\CI\Parser\ComposerWP.
+ * Contains \Hedron\Parser\ComposerWP.
  */
 
-namespace Worx\CI\Parser;
-use Worx\CI\Command\CommandStackInterface;
-use Worx\CI\GitPostReceiveHandler;
-use Worx\CI\Tools\ComposerHelperTrait;
+namespace Hedron\Parser;
+use Hedron\Command\CommandStackInterface;
+use Hedron\GitPostReceiveHandler;
+use Hedron\Tools\ComposerHelperTrait;
 
 /**
- * @Worx\CI\Annotation\Parser(
+ * @Hedron\Annotation\Parser(
  *   pluginId = "composer_wp",
  *   project_type = "wp",
  *   priority = "10"

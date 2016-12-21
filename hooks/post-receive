@@ -4,12 +4,12 @@
 /** @var \Composer\Autoload\ClassLoader $autoloader */
 $autoloader = require __DIR__ . '/../../vendor/autoload.php';
 
-use Worx\CI\Bootstrap;
-use Worx\CI\Command\CommandStackFactory;
-use Worx\CI\File\FileSystem;
-use Worx\CI\Filter\ProjectTypeFilter;
-use Worx\CI\GitPostReceiveHandler;
-use Worx\CI\ParserDictionary;
+use Hedron\Bootstrap;
+use Hedron\Command\CommandStackFactory;
+use Hedron\File\FileSystem;
+use Hedron\Filter\ProjectTypeFilter;
+use Hedron\GitPostReceiveHandler;
+use Hedron\ParserDictionary;
 
 // Extract namespaces to find any available plugins.
 $namespaces = Bootstrap::extractNamespaces($autoloader);

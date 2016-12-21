@@ -1,5 +1,5 @@
 <?php
 
-namespace Worx\CI\Exception;
+namespace Hedron\Exception;
 
 class MissingEnvironmentConfigurationException extends \Exception {}

@@ -1,11 +1,6 @@
 <?php
 
-/**
- * @file
- * Contains \Worx\CI\File\FileSystemInterface.
- */
-
-namespace Worx\CI\File;
+namespace Hedron\File;
 
 interface FileSystemInterface {
 

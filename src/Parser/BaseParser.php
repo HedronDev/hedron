@@ -2,18 +2,18 @@
 
 /**
  * @file
- * Contains \Worx\CI\Parser\BaseParser.
+ * Contains \Hedron\Parser\BaseParser.
  */
 
-namespace Worx\CI\Parser;
+namespace Hedron\Parser;
 
 use EclipseGc\Plugin\PluginDefinitionInterface;
-use Worx\CI\Command\CommandStackInterface;
-use Worx\CI\Configuration\EnvironmentVariables;
-use Worx\CI\Configuration\ParserVariableConfiguration;
-use Worx\CI\File\FileSystemInterface;
-use Worx\CI\FileParserInterface;
-use Worx\CI\GitPostReceiveHandler;
+use Hedron\Command\CommandStackInterface;
+use Hedron\Configuration\EnvironmentVariables;
+use Hedron\Configuration\ParserVariableConfiguration;
+use Hedron\File\FileSystemInterface;
+use Hedron\FileParserInterface;
+use Hedron\GitPostReceiveHandler;
 
 abstract class BaseParser implements FileParserInterface {
 
@@ -34,21 +34,21 @@ abstract class BaseParser implements FileParserInterface {
   /**
    * The environment configuration.
    *
-   * @var \Worx\CI\Configuration\EnvironmentVariables
+   * @var \Hedron\Configuration\EnvironmentVariables
    */
   protected $environment;
 
   /**
    * The git repository configuration.
    *
-   * @var \Worx\CI\Configuration\ParserVariableConfiguration
+   * @var \Hedron\Configuration\ParserVariableConfiguration
    */
   protected $configuration;
 
   /**
    * The file system.
    *
-   * @var \Worx\CI\File\FileSystemInterface
+   * @var \Hedron\File\FileSystemInterface
    */
   protected $fileSystem;
 
@@ -59,8 +59,8 @@ abstract class BaseParser implements FileParserInterface {
    *   The plugin id.
    * @param \EclipseGc\Plugin\PluginDefinitionInterface $definition
    *   The plugin definition.
-   * @param \Worx\CI\Configuration\EnvironmentVariables $environment
-   * @param \Worx\CI\Configuration\ParserVariableConfiguration $configuration
+   * @param \Hedron\Configuration\EnvironmentVariables $environment
+   * @param \Hedron\Configuration\ParserVariableConfiguration $configuration
    */
   public function __construct(string $pluginId, PluginDefinitionInterface $definition, EnvironmentVariables $environment, ParserVariableConfiguration $configuration, FileSystemInterface $fileSystem) {
     $this->pluginId = $pluginId;
@@ -123,7 +123,7 @@ abstract class BaseParser implements FileParserInterface {
   }
 
   /**
-   * @return \Worx\CI\File\FileSystemInterface
+   * @return \Hedron\File\FileSystemInterface
    */
   protected function getFileSystem() {
     return $this->fileSystem;

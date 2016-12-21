@@ -1,13 +1,13 @@
 <?php
 
-namespace Worx\CI\Parser;
+namespace Hedron\Parser;
 
 use Symfony\Component\Filesystem\Filesystem;
-use Worx\CI\Command\CommandStackInterface;
-use Worx\CI\GitPostReceiveHandler;
+use Hedron\Command\CommandStackInterface;
+use Hedron\GitPostReceiveHandler;
 
 /**
- * @Worx\CI\Annotation\Parser(
+ * @Hedron\Annotation\Parser(
  *   pluginId = "docker_compose",
  *   priority = "950"
  * )

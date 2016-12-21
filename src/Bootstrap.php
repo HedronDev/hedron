@@ -1,19 +1,14 @@
 <?php
 
-/**
- * @file
- * Contains \Worx\CI\Bootstrap.
- */
-
-namespace Worx\CI;
+namespace Hedron;
 
 use Composer\Autoload\ClassLoader;
 use EclipseGc\Plugin\Filter\PluginDefinitionFilterInterface;
 use Symfony\Component\Yaml\Yaml;
-use Worx\CI\Configuration\EnvironmentVariables;
-use Worx\CI\Configuration\ParserVariableConfiguration;
-use Worx\CI\Exception\MissingEnvironmentConfigurationException;
-use Worx\CI\File\FileSystemInterface;
+use Hedron\Configuration\EnvironmentVariables;
+use Hedron\Configuration\ParserVariableConfiguration;
+use Hedron\Exception\MissingEnvironmentConfigurationException;
+use Hedron\File\FileSystemInterface;
 
 class Bootstrap {
 
@@ -43,7 +38,7 @@ class Bootstrap {
    * @param string $input
    *   Input to the post-receive git hook
    *
-   * @return \Worx\CI\Configuration\ParserVariableConfiguration
+   * @return \Hedron\Configuration\ParserVariableConfiguration
    *   A simple configuration object.
    */
   public static function getConfiguration(string $input) {
@@ -55,10 +50,10 @@ class Bootstrap {
   /**
    * Bootstraps the environment variables.
    *
-   * @return \Worx\CI\Configuration\EnvironmentVariables
+   * @return \Hedron\Configuration\EnvironmentVariables
    *   The environment variables from yaml.
    *
-   * @throws \Worx\CI\Exception\MissingEnvironmentConfigurationException
+   * @throws \Hedron\Exception\MissingEnvironmentConfigurationException
    *   If the yaml file is missing, throws this exception.
    */
   public static function getEnvironmentVariables() {
@@ -73,18 +68,18 @@ class Bootstrap {
   /**
    * Gets an array of valid parser plugins for the given filters.
    *
-   * @param \Worx\CI\Configuration\EnvironmentVariables $environment
+   * @param \Hedron\Configuration\EnvironmentVariables $environment
    *   The environment configuration.
-   * @param \Worx\CI\Configuration\ParserVariableConfiguration $configuration
+   * @param \Hedron\Configuration\ParserVariableConfiguration $configuration
    *   The git repository configuration.
-   * @param \Worx\CI\File\FileSystemInterface $fileSystem
+   * @param \Hedron\File\FileSystemInterface $fileSystem
    *   A file system object.
-   * @param \Worx\CI\ParserDictionary $dictionary
+   * @param \Hedron\ParserDictionary $dictionary
    *   The parser plugin dictionary
    * @param \EclipseGc\Plugin\Filter\PluginDefinitionFilterInterface[] ...$filters
    *   The list of filters to apply.
    *
-   * @return \Worx\CI\FileParserInterface[]
+   * @return \Hedron\FileParserInterface[]
    *   The valid parser plugins.
    */
   public static function getValidParsers(EnvironmentVariables $environment, ParserVariableConfiguration $configuration, FileSystemInterface $fileSystem, ParserDictionary $dictionary, PluginDefinitionFilterInterface ...$filters) {
@@ -92,16 +87,16 @@ class Bootstrap {
     foreach ($dictionary->getFilteredDefinitions(...$filters) as $pluginDefinition) {
       $plugins[] = $dictionary->createInstance($pluginDefinition->getPluginId(), $pluginDefinition, $environment, $configuration, $fileSystem);
     }
-    usort($plugins, '\Worx\CI\Bootstrap::sortPlugins');
+    usort($plugins, '\Hedron\Bootstrap::sortPlugins');
     return $plugins;
   }
 
   /**
    * Sorts FileParserInterface objects by their priority.
    *
-   * @param \Worx\CI\FileParserInterface $a
+   * @param \Hedron\FileParserInterface $a
    *   The first parser.
-   * @param \Worx\CI\FileParserInterface $b
+   * @param \Hedron\FileParserInterface $b
    *   The second parser.
    *
    * @return bool

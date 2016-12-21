@@ -1,15 +1,15 @@
 <?php
 
-namespace Worx\CI\Parser;
+namespace Hedron\Parser;
 
 use Composer\Semver\Comparator;
-use Worx\CI\Command\CommandStackInterface;
-use Worx\CI\Exception\MissingComposerException;
-use Worx\CI\GitPostReceiveHandler;
-use Worx\CI\Tools\ComposerHelperTrait;
+use Hedron\Command\CommandStackInterface;
+use Hedron\Exception\MissingComposerException;
+use Hedron\GitPostReceiveHandler;
+use Hedron\Tools\ComposerHelperTrait;
 
 /**
- * @Worx\CI\Annotation\Parser(
+ * @Hedron\Annotation\Parser(
  *   pluginId = "composer_drupal_8",
  *   project_type = "drupal",
  *   priority = "10"
@@ -214,7 +214,7 @@ class ComposerDrupal8 extends BaseParser {
    *
    * @param \stdClass $composer
    *
-   * @see \Worx\CI\Tools\ComposerHelperTrait::mergeComposerObjects
+   * @see \Hedron\Tools\ComposerHelperTrait::mergeComposerObjects
    */
   protected function alterComposerFile(\stdClass $composer) {
     // Don't add the drupal/drupal dependency to the new composer.json.

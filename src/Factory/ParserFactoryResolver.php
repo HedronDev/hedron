@@ -1,6 +1,6 @@
 <?php
 
-namespace Worx\CI\Factory;
+namespace Hedron\Factory;
 
 use EclipseGc\Plugin\Factory\FactoryInterface;
 use EclipseGc\Plugin\Factory\FactoryResolverInterface;

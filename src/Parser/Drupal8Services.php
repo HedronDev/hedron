@@ -1,13 +1,13 @@
 <?php
 
-namespace Worx\CI\Parser;
+namespace Hedron\Parser;
 
 use Symfony\Component\Yaml\Yaml;
-use Worx\CI\Command\CommandStackInterface;
-use Worx\CI\GitPostReceiveHandler;
+use Hedron\Command\CommandStackInterface;
+use Hedron\GitPostReceiveHandler;
 
 /**
- * @Worx\CI\Annotation\Parser(
+ * @Hedron\Annotation\Parser(
  *   pluginId = "drupal_8_services",
  *   project_type = "drupal",
  *   priority = "8"

@@ -1,13 +1,12 @@
 <?php
 
-namespace Worx\CI;
+namespace Hedron;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Application;
-use Worx\CI\Command\CommandStack;
-use Worx\CI\Command\CommandStackFactoryInterface;
-use Worx\CI\Configuration\ParserVariableConfiguration;
+use Hedron\Command\CommandStackFactoryInterface;
+use Hedron\Configuration\ParserVariableConfiguration;
 
 class GitPostReceiveHandler extends Application
 {
@@ -15,17 +14,17 @@ class GitPostReceiveHandler extends Application
   protected $input;
 
   /**
-   * @var \Worx\CI\Configuration\ParserVariableConfiguration
+   * @var \Hedron\Configuration\ParserVariableConfiguration
    */
   protected $configuration;
 
   /**
-   * @var \Worx\CI\Command\CommandStackFactoryInterface
+   * @var \Hedron\Command\CommandStackFactoryInterface
    */
   protected $commandStackFactory;
 
   /**
-   * @var \Worx\CI\FileParserInterface[]
+   * @var \Hedron\FileParserInterface[]
    */
   protected $fileParsers;
 
@@ -38,9 +37,9 @@ class GitPostReceiveHandler extends Application
   /**
    * PostReceiveHandler constructor.
    *
-   * @param \Worx\CI\Configuration\ParserVariableConfiguration $configuration
-   * @param \Worx\CI\Command\CommandStackFactoryInterface $commandStackFactory
-   * @param \Worx\CI\FileParserInterface[] $fileParsers
+   * @param \Hedron\Configuration\ParserVariableConfiguration $configuration
+   * @param \Hedron\Command\CommandStackFactoryInterface $commandStackFactory
+   * @param \Hedron\FileParserInterface[] $fileParsers
    */
   public function __construct(ParserVariableConfiguration $configuration, CommandStackFactoryInterface $commandStackFactory, FileParserInterface ...$fileParsers)
   {
@@ -119,7 +118,7 @@ class GitPostReceiveHandler extends Application
   }
 
   /**
-   * @return \Worx\CI\Configuration\ParserVariableConfiguration
+   * @return \Hedron\Configuration\ParserVariableConfiguration
    */
   public function getConfiguration()
   {

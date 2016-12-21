@@ -1,11 +1,6 @@
 <?php
 
-/**
- * @file
- * Contains \Worx\CI\Command\CommandHandlerInterface.
- */
-
-namespace Worx\CI\Command;
+namespace Hedron\Command;
 
 interface CommandStackInterface {
 

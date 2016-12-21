@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Worx\CI\Exception\InvalidEnvironmentConfigurationException.
- */
-
-namespace Worx\CI\Exception;
+namespace Hedron\Exception;
 
 class InvalidEnvironmentConfigurationException extends \Exception {}

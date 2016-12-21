@@ -1,6 +1,6 @@
 <?php
 
-namespace Worx\CI\Command;
+namespace Hedron\Command;
 
 use Symfony\Component\Console\Output\OutputInterface;
 

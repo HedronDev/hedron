@@ -1,11 +1,6 @@
 <?php
 
-/**
- * @file
- * Contains \Worx\CI\ComposerHelperTrait.
- */
-
-namespace Worx\CI\Tools;
+namespace Hedron\Tools;
 
 use Composer\Semver\Comparator;
 

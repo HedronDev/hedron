@@ -1,6 +1,6 @@
 <?php
 
-namespace Worx\CI\Command;
+namespace Hedron\Command;
 
 class CommandStackFactory implements CommandStackFactoryInterface {
 

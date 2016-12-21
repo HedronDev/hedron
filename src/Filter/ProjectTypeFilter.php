@@ -1,6 +1,6 @@
 <?php
 
-namespace Worx\CI\Filter;
+namespace Hedron\Filter;
 
 use EclipseGc\Plugin\Filter\PluginDefinitionFilterInterface;
 use EclipseGc\Plugin\PluginDefinitionInterface;
@@ -25,7 +25,7 @@ class ProjectTypeFilter implements PluginDefinitionFilterInterface {
    * {@inheritdoc}
    */
   public function filter(PluginDefinitionInterface $definition): bool {
-    /** @var \Worx\CI\Annotation\Parser $definition */
+    /** @var \Hedron\Annotation\Parser $definition */
     $project_type = $definition->getProjectType();
     if (in_array($this->projectType, $definition->getExclusions())) {
       return FALSE;

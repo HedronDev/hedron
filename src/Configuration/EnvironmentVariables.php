@@ -1,13 +1,8 @@
 <?php
 
-/**
- * @file
- * Contains \Worx\CI\Configuration\EnvironmentVariables.
- */
+namespace Hedron\Configuration;
 
-namespace Worx\CI\Configuration;
-
-use Worx\CI\Exception\InvalidEnvironmentConfigurationException;
+use Hedron\Exception\InvalidEnvironmentConfigurationException;
 
 class EnvironmentVariables {
 

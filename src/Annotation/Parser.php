@@ -1,6 +1,6 @@
 <?php
 
-namespace Worx\CI\Annotation;
+namespace Hedron\Annotation;
 
 use EclipseGc\PluginAnnotation\Definition\AnnotatedPluginDefinition;
 
