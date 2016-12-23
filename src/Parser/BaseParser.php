@@ -15,6 +15,9 @@ use Hedron\File\FileSystemInterface;
 use Hedron\FileParserInterface;
 use Hedron\GitPostReceiveHandler;
 
+/**
+ * A base implementation for any parser plugin to extend.
+ */
 abstract class BaseParser implements FileParserInterface {
 
   /**
@@ -60,7 +63,11 @@ abstract class BaseParser implements FileParserInterface {
    * @param \EclipseGc\Plugin\PluginDefinitionInterface $definition
    *   The plugin definition.
    * @param \Hedron\Configuration\EnvironmentVariables $environment
+   *   The environment object
    * @param \Hedron\Configuration\ParserVariableConfiguration $configuration
+   *   The configuration from the git post-receive hook.
+   * @param \Hedron\File\FileSystemInterface $fileSystem
+   *   The file system object.
    */
   public function __construct(string $pluginId, PluginDefinitionInterface $definition, EnvironmentVariables $environment, ParserVariableConfiguration $configuration, FileSystemInterface $fileSystem) {
     $this->pluginId = $pluginId;
@@ -84,13 +91,24 @@ abstract class BaseParser implements FileParserInterface {
     return $this->pluginDefinition;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getConfiguration() {
     return $this->configuration;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getEnvironment() {
     return $this->environment;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {}
 
   /**
    * The client directory in {client}-{branch} format.
@@ -123,15 +141,12 @@ abstract class BaseParser implements FileParserInterface {
   }
 
   /**
+   * The file system object.
+   *
    * @return \Hedron\File\FileSystemInterface
    */
   protected function getFileSystem() {
     return $this->fileSystem;
   }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {}
 
 }
