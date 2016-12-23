@@ -25,20 +25,22 @@ class DockerCompose extends BaseParser {
     $configuration = $this->getConfiguration();
     $environment = $this->getEnvironment();
     $clientDir = "{$environment->getClient()}-{$configuration->getBranch()}";
-    if (!$parse && !file_exists("{$environment->getDockerDirectory()}/$clientDir") && !file_exists("{$environment->getGitDirectory()}/docker/docker-compose.yml")) {
+    if (!$parse && !$this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir") && $this->fileSystem->exists("{$environment->getGitDirectory()}/$clientDir/docker/docker-compose.yml")) {
       $parse = TRUE;
     }
     if ($parse) {
       if ($environment->getHost() != 'localhost') {
         $commandStack->addCommand("ssh root@{$environment->getHost()}");
       }
-      if (file_exists("{$environment->getDockerDirectory()}/$clientDir")) {
+      // Rebuild
+      if ($this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir")) {
         $commandStack->addCommand("rsync -av --delete {$environment->getGitDirectory()}/$clientDir/docker/ {$environment->getDockerDirectory()}/$clientDir");
         $commandStack->addCommand("cd {$environment->getDockerDirectory()}/$clientDir");
         $commandStack->addCommand("docker-compose down");
         $commandStack->addCommand("docker-compose build");
         $commandStack->addCommand("docker-compose up -d");
       }
+      // Create
       else {
         $commandStack->addCommand("mkdir {$environment->getDockerDirectory()}/$clientDir");
         $commandStack->addCommand("cp -r {$environment->getGitDirectory()}/$clientDir/docker/. {$environment->getDockerDirectory()}/$clientDir");

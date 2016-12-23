@@ -19,13 +19,13 @@ class GitPull extends BaseParser {
   public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $configuration = $this->getConfiguration();
     $environment = $this->getEnvironment();
-    $clientDir = "{$environment->getClient()}-{$configuration->getBranch()}";
-    if (file_exists("{$environment->getGitDirectory()}/$clientDir")) {
+    $clientDir = $environment->getGitDirectory() . DIRECTORY_SEPARATOR . $this->getClientDirectoryName();
+    if ($this->fileSystem->exists($clientDir)) {
       $commandStack->addCommand("unset GIT_DIR");
-      $commandStack->addCommand("git -C {$environment->getGitDirectory()}/$clientDir pull");
+      $commandStack->addCommand("git -C $clientDir pull");
     }
     else {
-      $commandStack->addCommand("git clone --branch {$configuration->getBranch()} {$environment->getGitRepository()} {$environment->getGitDirectory()}/$clientDir");
+      $commandStack->addCommand("git clone --branch {$configuration->getBranch()} {$environment->getGitRepository()} $clientDir");
     }
     $commandStack->execute();
   }
