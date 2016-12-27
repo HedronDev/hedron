@@ -112,7 +112,7 @@ abstract class BaseParser implements FileParserInterface {
    *   The client directory name.
    */
   protected function getClientDirectoryName() {
-    return "{$this->getEnvironment()->getClient()}-{$this->getConfiguration()->getBranch()}";
+    return strtolower($this->getEnvironment()->getClient()) . '-' . strtolower($this->getEnvironment()->getName()) . '-' . $this->getConfiguration()->getBranch();
   }
 
   /**
@@ -122,7 +122,7 @@ abstract class BaseParser implements FileParserInterface {
    *   The absolute path of the client site data directory.
    */
   protected function getSiteDirectoryPath() {
-    return "{$this->getEnvironment()->getDockerDirectory()}/{$this->getClientDirectoryName()}/{$this->getEnvironment()->getDataDirectory()}";
+    return "{$this->getEnvironment()->getDataDirectory()}";
   }
 
   /**

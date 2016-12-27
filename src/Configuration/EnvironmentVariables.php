@@ -16,6 +16,8 @@ class EnvironmentVariables {
 
   protected $client;
 
+  protected $name;
+
   protected $dockerDirectory;
 
   protected $dataDirectory;
@@ -30,6 +32,7 @@ class EnvironmentVariables {
     $this->gitDirectory = $configuration['gitDirectory'];
     $this->gitRepository = $configuration['gitRepository'];
     $this->client = $configuration['client'];
+    $this->name = $configuration['name'];
     $this->dockerDirectory = $configuration['dockerDirectory'];
     $this->dataDirectory = $configuration['dataDirectory'];
   }
@@ -41,6 +44,7 @@ class EnvironmentVariables {
       'gitDirectory',
       'gitRepository',
       'client',
+      'name',
       'dockerDirectory',
       'dataDirectory',
     ];
@@ -71,6 +75,10 @@ class EnvironmentVariables {
 
   public function getClient() {
     return $this->client;
+  }
+
+  public function getName() {
+    return $this->name;
   }
 
   public function getDockerDirectory() {
