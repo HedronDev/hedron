@@ -1,8 +1,13 @@
-#!/usr/local/bin/php
 <?php
 
+$user_directory = trim(shell_exec("cd ~; pwd"));
+$hedron_directory = $user_directory . DIRECTORY_SEPARATOR . '.hedron';
+$autoloader_file = $hedron_directory . DIRECTORY_SEPARATOR . 'hedron' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+if (!file_exists($autoloader_file)) {
+  throw new \Exception("Hedron core could not be found, consult a system administrator to determine if this project is setup correctly.");
+}
 /** @var \Composer\Autoload\ClassLoader $autoloader */
-$autoloader = require __DIR__ . '/../../vendor/autoload.php';
+$autoloader = require $autoloader_file;
 
 use Hedron\Bootstrap;
 use Hedron\Command\CommandStackFactory;
