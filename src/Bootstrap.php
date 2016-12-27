@@ -60,7 +60,7 @@ class Bootstrap {
     $dir = shell_exec('pwd');
     $dir_parts = explode(DIRECTORY_SEPARATOR, $dir);
     $project = trim(array_pop($dir_parts));
-    $dir = $dir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'project' . DIRECTORY_SEPARATOR . $project;
+    $dir = $dir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'project' . DIRECTORY_SEPARATOR . $project;
     $environment_file = file_get_contents($dir . DIRECTORY_SEPARATOR . 'environment.yml');
     if (!$environment_file) {
       throw new MissingEnvironmentConfigurationException("The environment configuration is missing, please contact your administrator.");
