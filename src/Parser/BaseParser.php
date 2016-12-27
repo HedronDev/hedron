@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Hedron\Parser\BaseParser.
- */
-
 namespace Hedron\Parser;
 
 use EclipseGc\Plugin\PluginDefinitionInterface;
