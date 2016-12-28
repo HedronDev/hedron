@@ -19,7 +19,7 @@ class GitPull extends BaseParser {
   public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $configuration = $this->getConfiguration();
     $environment = $this->getEnvironment();
-    $clientDir = $environment->getGitDirectory() . DIRECTORY_SEPARATOR . $this->getClientDirectoryName();
+    $clientDir = $this->getGitDirectoryPath();
     if ($this->fileSystem->exists($clientDir)) {
       $commandStack->addCommand("unset GIT_DIR");
       $commandStack->addCommand("git -C $clientDir pull");
@@ -34,7 +34,7 @@ class GitPull extends BaseParser {
    * {@inheritdoc}
    */
   public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
-    $dir = $this->getEnvironment()->getGitDirectory() . DIRECTORY_SEPARATOR . $this->getClientDirectoryName();
+    $dir = $this->getGitDirectoryPath();
     $commandStack->addCommand("rm -Rf $dir");
     $commandStack->execute();
   }

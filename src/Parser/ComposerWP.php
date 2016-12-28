@@ -26,7 +26,7 @@ class ComposerWP extends BaseParser {
   public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $commands = [];
     $git_directory = $this->getGitDirectoryPath();
-    $site_directory = $this->getSiteDirectoryPath();
+    $site_directory = $this->getDataDirectoryPath();
     $composer_file = "$site_directory/composer.json";
     $git_composer = "$git_directory/composer.json";
     $version = FALSE;

@@ -20,10 +20,9 @@ class Rsync extends BaseParser {
    * {@inheritdoc}
    */
   public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
-    $configuration = $this->getConfiguration();
+    $config = $this->getConfiguration();
     $environment = $this->getEnvironment();
-    $clientDir = "{$environment->getClient()}-{$configuration->getBranch()}";
-    $commandStack->addCommand("rsync -av --exclude=docker --exclude=.git {$environment->getGitDirectory()}/$clientDir/ {$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}");
+    $commandStack->addCommand("rsync -av --exclude=docker --exclude=.git {$environment->getGitDirectory()}/{$config->getBranch()}/ {$this->getDataDirectoryPath()}");
     $commandStack->execute();
   }
 

@@ -19,9 +19,8 @@ class ComposerJson extends BaseParser {
    */
   public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     if (array_search('composer.json', $handler->getIntersectFiles()) !== FALSE) {
-      $configuration = $this->getConfiguration();
       $environment = $this->getEnvironment();
-      $clientDir = "{$environment->getClient()}-{$configuration->getBranch()}";
+      $clientDir = $this->getClientDirectoryName();
       $commandStack->addCommand("cd {$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}");
       if (file_exists("{$environment->getDockerDirectory()}/$clientDir/{$environment->getDataDirectory()}/composer.lock")) {
         $commandStack->addCommand("composer update");

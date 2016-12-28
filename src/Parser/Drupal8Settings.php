@@ -22,7 +22,7 @@ class Drupal8Settings extends BaseParser {
    * {@inheritdoc}
    */
   public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
-    $settings_path = "{$this->getSiteDirectoryPath()}/sites/default";
+    $settings_path = "{$this->getDataDirectoryPath()}/sites/default";
     if ($this->fileSystem->exists($settings_path . DIRECTORY_SEPARATOR . "settings.php")) {
       unlink($settings_path . DIRECTORY_SEPARATOR . "settings.php");
     }
@@ -32,7 +32,7 @@ class Drupal8Settings extends BaseParser {
    * {@inheritdoc}
    */
   public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
-    $settings_path = "{$this->getSiteDirectoryPath()}/sites/default";
+    $settings_path = "{$this->getDataDirectoryPath()}/sites/default";
     if (!file_exists("$settings_path/settings.php") && file_exists("$settings_path/default.settings.php")) {
       // @todo add a foreach loop around something like:
       // $environment->getSites() so that we can write the default to each site

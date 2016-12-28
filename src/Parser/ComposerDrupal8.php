@@ -26,7 +26,7 @@ class ComposerDrupal8 extends BaseParser {
    * {@inheritdoc}
    */
   public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
-    $commandStack->addCommand("find {$this->getSiteDirectoryPath()} -mindepth 1 -exec rm -rf {} \\;");
+    $commandStack->addCommand("find {$this->getDataDirectoryPath()} -mindepth 1 -exec rm -rf {} \\;");
     $commandStack->execute();
   }
 
@@ -36,7 +36,7 @@ class ComposerDrupal8 extends BaseParser {
    */
   public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $git_directory = $this->getGitDirectoryPath();
-    $site_directory = $this->getSiteDirectoryPath();
+    $site_directory = $this->getDataDirectoryPath();
     $file_system = $this->getFileSystem();
     $composer_file = "$site_directory/composer.json";
     $git_composer = $this->getGitComposerFile("$git_directory/composer.json");
@@ -92,7 +92,7 @@ class ComposerDrupal8 extends BaseParser {
   }
 
   protected function composeDrupalDrupal($composerFile, CommandStackInterface $commandStack) {
-    $site_directory = $this->getSiteDirectoryPath();
+    $site_directory = $this->getDataDirectoryPath();
     $file_system = $this->getFileSystem();
     if (!$file_system->exists($composerFile)) {
       $this->new = TRUE;
@@ -100,7 +100,7 @@ class ComposerDrupal8 extends BaseParser {
       // content so we remove the files which were rsynced into the directory
       // and remake the directory before building our project.
       $commandStack->addCommand("rm -Rf $site_directory");
-      $commandStack->addCommand("mkdir $site_directory");
+      $commandStack->addCommand("mkdir -p $site_directory");
       $commandStack->addCommand("cd $site_directory");
       if ($this->version) {
         $commandStack->addCommand("composer create-project drupal/drupal:{$this->version} --no-interaction --prefer-dist --no-install .");
@@ -129,7 +129,7 @@ class ComposerDrupal8 extends BaseParser {
   }
 
   protected function getInstallCommand(CommandStackInterface $commandStack) {
-    $site_directory = $this->getSiteDirectoryPath();
+    $site_directory = $this->getDataDirectoryPath();
     $file_system = $this->getFileSystem();
     // If we don't have a vendor dir yet, run install.
     if (!$file_system->exists("$site_directory/vendor")) {
@@ -140,7 +140,7 @@ class ComposerDrupal8 extends BaseParser {
 
   protected function rsyncSubDirectory(string $subdirectory, CommandStackInterface $commandStack) {
     $git_directory = $this->getGitDirectoryPath();
-    $site_directory = $this->getSiteDirectoryPath();
+    $site_directory = $this->getDataDirectoryPath();
     $file_system = $this->getFileSystem();
     // Update modules directory with changes from the git repository.
     // @todo only do this if something changed in /$subdirectory
@@ -150,7 +150,7 @@ class ComposerDrupal8 extends BaseParser {
   }
 
   protected function removeComposerDependencies(array $removals, CommandStackInterface $commandStack) {
-    $commandStack->addCommand("cd {$this->getSiteDirectoryPath()}");
+    $commandStack->addCommand("cd {$this->getDataDirectoryPath()}");
     foreach ($removals as $package) {
       $commandStack->addCommand("composer remove $package");
     }
@@ -158,13 +158,13 @@ class ComposerDrupal8 extends BaseParser {
 
   protected function updateComposerDependencies(array $update, CommandStackInterface $commandStack) {
     if ($update) {
-      $commandStack->addCommand("cd {$this->getSiteDirectoryPath()}");
+      $commandStack->addCommand("cd {$this->getDataDirectoryPath()}");
       $commandStack->addCommand("composer update");
     }
   }
 
   protected function installComposerDependencies(array $install, CommandStackInterface $commandStack) {
-    $commandStack->addCommand("cd {$this->getSiteDirectoryPath()}");
+    $commandStack->addCommand("cd {$this->getDataDirectoryPath()}");
     foreach ($install as $package => $version) {
       if ($version) {
         $commandStack->addCommand("composer require $package $version");
@@ -181,7 +181,7 @@ class ComposerDrupal8 extends BaseParser {
    * @return string
    */
   protected function getCurrentDrupalCoreVersion() {
-    $drupal_class = "{$this->getSiteDirectoryPath()}/core/lib/Drupal.php";
+    $drupal_class = "{$this->getDataDirectoryPath()}/core/lib/Drupal.php";
     $file_system = $this->getFileSystem();
     if ($file_system->exists($drupal_class)) {
       $drupal_class = $file_system->getContents($drupal_class);

@@ -116,23 +116,31 @@ abstract class BaseParser implements FileParserInterface {
   }
 
   /**
-   * The absolute path of the client site data directory.
-   *
-   * @return string
-   *   The absolute path of the client site data directory.
-   */
-  protected function getSiteDirectoryPath() {
-    return "{$this->getEnvironment()->getDataDirectory()}";
-  }
-
-  /**
    * The absolute path of the git directory.
    *
    * @return string
    *   The absolute path of the git directory.
    */
   protected function getGitDirectoryPath() {
-    return "{$this->getEnvironment()->getGitDirectory()}/{$this->getClientDirectoryName()}";
+    return "{$this->getEnvironment()->getGitDirectory()}/{$this->getConfiguration()->getBranch()}";
+  }
+
+  /**
+   * The absolute path of the client site data directory.
+   *
+   * @return string
+   *   The absolute path of the client site data directory.
+   */
+  protected function getDataDirectoryPath() {
+    $data_dir = $this->getEnvironment()->getDataDirectory();
+    $config = $this->getConfiguration();
+    return str_replace('{branch}', $config->getBranch(), $data_dir);
+  }
+
+  protected function getSqlDirectoryPath() {
+    $data_dir = $this->getEnvironment()->getDataDirectory();
+    $config = $this->getConfiguration();
+    return str_replace(['{branch}', 'web'], [$config->getBranch(), 'sql'], $data_dir);
   }
 
   /**

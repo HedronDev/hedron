@@ -27,11 +27,12 @@ class FileParserInterfaceTest extends \PHPUnit_Framework_TestCase {
     $this->config = $config->reveal();
     $environment = $this->prophesize(EnvironmentVariables::class);
     $environment->getGitDirectory()->willReturn("git_dir");
+    $environment->getName()->willReturn("project_name");
     $environment->getClient()->willReturn("client_name");
     $environment->getDockerDirectory()->willReturn("docker_dir");
-    $environment->getDataDirectory()->willReturn("data_dir");
+    $environment->getDataDirectory()->willReturn("{branch}/web");
     $environment->getGitRepository()->willReturn("some_git_repo");
-    $environment->getHost()->willReturn('localhost');
+    $environment->getHost()->willReturn('local');
     $this->environment = $environment->reveal();
   }
 
@@ -62,91 +63,97 @@ class FileParserInterfaceTest extends \PHPUnit_Framework_TestCase {
 
     // Rsync parse().
     $providers[] = ['\Hedron\Parser\Rsync', 'parse', 'rsync', $handler->reveal(), $fileSystem->reveal(), 1, [
-      "rsync -av --exclude=docker --exclude=.git git_dir/client_name-foo/ docker_dir/client_name-foo/data_dir"
+      "rsync -av --exclude=docker --exclude=.git git_dir/foo/ foo/web"
     ]];
     // Rsync destroy
     $providers[] = ['\Hedron\Parser\Rsync', 'destroy', 'rsync', $handler->reveal(), $fileSystem->reveal(), 0, []];
 
     // New; git clone
     $newGitFileSystem = $this->prophesize(FileSystem::class);
-    $newGitFileSystem->exists("git_dir/client_name-foo")->willReturn(FALSE);
+    $newGitFileSystem->exists("git_dir/foo")->willReturn(FALSE);
     $providers[] = ['\Hedron\Parser\GitPull', 'parse', 'git_pull', $handler->reveal(), $newGitFileSystem->reveal(), 1, [
-      "git clone --branch foo some_git_repo git_dir/client_name-foo"
+      "git clone --branch foo some_git_repo git_dir/foo"
     ]];
     // Destroy with the same settings.
     $providers[] = ['\Hedron\Parser\GitPull', 'destroy', 'git_pull', $handler->reveal(), $newGitFileSystem->reveal(), 1, [
-      "rm -Rf git_dir/client_name-foo"
+      "rm -Rf git_dir/foo"
     ]];
 
     // Existing; git pull.
     $existingGitFileSystem = $this->prophesize(FileSystem::class);
-    $existingGitFileSystem->exists("git_dir/client_name-foo")->willReturn(TRUE);
+    $existingGitFileSystem->exists("git_dir/foo")->willReturn(TRUE);
     $providers[] = ['\Hedron\Parser\GitPull', 'parse', 'git_pull', $handler->reveal(), $existingGitFileSystem->reveal(), 1, [
       "unset GIT_DIR",
-      "git -C git_dir/client_name-foo pull"
+      "git -C git_dir/foo pull"
     ]];
     // Destroy with the same settings.
     $providers[] = ['\Hedron\Parser\GitPull', 'destroy', 'git_pull', $handler->reveal(), $newGitFileSystem->reveal(), 1, [
-      "rm -Rf git_dir/client_name-foo"
+      "rm -Rf git_dir/foo"
     ]];
 
     // Docker Compose parse
     // Docker dir has already been built and no new docker files were committed
     $dcfileSystem = $this->prophesize(FileSystem::class);
-    $dcfileSystem->exists("docker_dir/client_name-foo")->willReturn(TRUE);
+    $dcfileSystem->exists("docker_dir/foo")->willReturn(TRUE);
     $dchandler = $this->prophesize(GitPostReceiveHandler::class);
     $dchandler->getCommittedFiles()->willReturn([]);
     $providers[] = ['\Hedron\Parser\DockerCompose', 'parse', 'docker_compose', $dchandler->reveal(), $dcfileSystem->reveal(), 0, []];
 
     // Docker dir exists so does docker-compose; no new docker committed files
     $dcfileSystem = $this->prophesize(FileSystem::class);
-    $dcfileSystem->exists("docker_dir/client_name-foo")->willReturn(TRUE);
-    $dcfileSystem->exists("git_dir/client_name-foo/docker/docker-compose.yml")->willReturn(TRUE);
+    $dcfileSystem->exists("docker_dir/foo")->willReturn(TRUE);
+    $dcfileSystem->exists("git_dir/foo/docker/docker-compose.yml")->willReturn(TRUE);
     $dchandler = $this->prophesize(GitPostReceiveHandler::class);
     $dchandler->getCommittedFiles()->willReturn([]);
     $providers[] = ['\Hedron\Parser\DockerCompose', 'parse', 'docker_compose', $dchandler->reveal(), $dcfileSystem->reveal(), 0, []];
 
     // Docker dir does not exist but neither does docker-compose.yml
     $dcfileSystem = $this->prophesize(FileSystem::class);
-    $dcfileSystem->exists("docker_dir/client_name-foo")->willReturn(FALSE);
-    $dcfileSystem->exists("git_dir/client_name-foo/docker/docker-compose.yml")->willReturn(FALSE);
+    $dcfileSystem->exists("docker_dir/foo")->willReturn(FALSE);
+    $dcfileSystem->exists("git_dir/foo/docker/docker-compose.yml")->willReturn(FALSE);
     $dchandler = $this->prophesize(GitPostReceiveHandler::class);
     $dchandler->getCommittedFiles()->willReturn([]);
     $providers[] = ['\Hedron\Parser\DockerCompose', 'parse', 'docker_compose', $dchandler->reveal(), $dcfileSystem->reveal(), 0, []];
 
     // Docker dir doesn't exist but docker-compose does.
     $dcfileSystem = $this->prophesize(FileSystem::class);
-    $dcfileSystem->exists("docker_dir/client_name-foo")->willReturn(FALSE);
-    $dcfileSystem->exists("git_dir/client_name-foo/docker/docker-compose.yml")->willReturn(TRUE);
+    $dcfileSystem->exists("docker_dir/foo")->willReturn(FALSE);
+    $dcfileSystem->exists("git_dir/foo/docker/docker-compose.yml")->willReturn(TRUE);
     $dchandler = $this->prophesize(GitPostReceiveHandler::class);
     $dchandler->getCommittedFiles()->willReturn([]);
     $providers[] = ['\Hedron\Parser\DockerCompose', 'parse', 'docker_compose', $dchandler->reveal(), $dcfileSystem->reveal(), 1, [
-      "mkdir docker_dir/client_name-foo",
-      "cp -r git_dir/client_name-foo/docker/. docker_dir/client_name-foo",
-      "cd docker_dir/client_name-foo",
+      "mkdir docker_dir/foo",
+      "cp -r git_dir/foo/docker/. docker_dir/foo",
+      "cd docker_dir/foo",
+      "WEB=foo/web",
+      "SQL=foo/sql",
       "docker-compose up -d",
     ]];
 
     // Docker dir not built; new docker files were committed
     $dcfileSystem = $this->prophesize(FileSystem::class);
-    $dcfileSystem->exists("docker_dir/client_name-foo")->willReturn(FALSE);
+    $dcfileSystem->exists("docker_dir/foo")->willReturn(FALSE);
     $dchandler = $this->prophesize(GitPostReceiveHandler::class);
     $dchandler->getCommittedFiles()->willReturn(['docker/foo']);
     $providers[] = ['\Hedron\Parser\DockerCompose', 'parse', 'docker_compose', $dchandler->reveal(), $dcfileSystem->reveal(), 1, [
-      "mkdir docker_dir/client_name-foo",
-      "cp -r git_dir/client_name-foo/docker/. docker_dir/client_name-foo",
-      "cd docker_dir/client_name-foo",
+      "mkdir docker_dir/foo",
+      "cp -r git_dir/foo/docker/. docker_dir/foo",
+      "cd docker_dir/foo",
+      "WEB=foo/web",
+      "SQL=foo/sql",
       "docker-compose up -d",
     ]];
 
     // Docker dir built; new docker files were committed
     $dcfileSystem = $this->prophesize(FileSystem::class);
-    $dcfileSystem->exists("docker_dir/client_name-foo")->willReturn(TRUE);
+    $dcfileSystem->exists("docker_dir/foo")->willReturn(TRUE);
     $dchandler = $this->prophesize(GitPostReceiveHandler::class);
     $dchandler->getCommittedFiles()->willReturn(['docker/foo']);
     $providers[] = ['\Hedron\Parser\DockerCompose', 'parse', 'docker_compose', $dchandler->reveal(), $dcfileSystem->reveal(), 1, [
-      "rsync -av --delete git_dir/client_name-foo/docker/ docker_dir/client_name-foo",
-      "cd docker_dir/client_name-foo",
+      "rsync -av --delete git_dir/foo/docker/ docker_dir/foo",
+      "cd docker_dir/foo",
+      "WEB=foo/web",
+      "SQL=foo/sql",
       "docker-compose down",
       "docker-compose build",
       "docker-compose up -d",

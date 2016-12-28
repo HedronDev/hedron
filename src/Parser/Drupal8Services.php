@@ -19,7 +19,7 @@ class Drupal8Services extends BaseParser {
    * {@inheritdoc}
    */
   public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
-    $settings_path = "{$this->getSiteDirectoryPath()}/sites/default";
+    $settings_path = "{$this->getDataDirectoryPath()}/sites/default";
     if ($this->fileSystem->exists($settings_path . DIRECTORY_SEPARATOR . "services.yml")) {
       unlink($settings_path . DIRECTORY_SEPARATOR . "services.yml");
     }
@@ -29,7 +29,7 @@ class Drupal8Services extends BaseParser {
    * {@inheritdoc}
    */
   public function parse(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
-    $settings_path = "{$this->getSiteDirectoryPath()}/sites/default";
+    $settings_path = "{$this->getDataDirectoryPath()}/sites/default";
     // @todo identify multisite
     if (!file_exists("$settings_path/services.yml") && file_exists("$settings_path/default.services.yml")) {
       // @todo add a foreach loop around something like:
