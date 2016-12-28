@@ -33,10 +33,11 @@ class DockerCompose extends BaseParser {
       }
       // Rebuild
       if ($this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir")) {
+        $commandStack->addCommand("rsync -av --delete {$environment->getGitDirectory()}/$clientDir/docker/ {$environment->getDockerDirectory()}/$clientDir");
+        $commandStack->execute();
         if (!$this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir/.env")) {
           $this->createEnv();
         }
-        $commandStack->addCommand("rsync -av --delete {$environment->getGitDirectory()}/$clientDir/docker/ {$environment->getDockerDirectory()}/$clientDir");
         $commandStack->addCommand("cd {$environment->getDockerDirectory()}/$clientDir");
         $commandStack->addCommand("docker-compose down");
         $commandStack->addCommand("docker-compose build");
