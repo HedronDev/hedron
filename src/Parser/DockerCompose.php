@@ -31,12 +31,15 @@ class DockerCompose extends BaseParser {
       if ($environment->getHost() != 'local') {
         $commandStack->addCommand("ssh root@{$environment->getHost()}");
       }
+      if (!$this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir/.env")) {
+        $environment_file = "{$environment->getDockerDirectory()}/$clientDir/.env";
+        $contents = "WEB={$this->getDataDirectoryPath()}\nSQL={$this->getSqlDirectoryPath()}";
+        $this->fileSystem->putContents($environment_file, $contents);
+      }
       // Rebuild
       if ($this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir")) {
         $commandStack->addCommand("rsync -av --delete {$environment->getGitDirectory()}/$clientDir/docker/ {$environment->getDockerDirectory()}/$clientDir");
         $commandStack->addCommand("cd {$environment->getDockerDirectory()}/$clientDir");
-        $commandStack->addCommand("WEB={$this->getDataDirectoryPath()}");
-        $commandStack->addCommand("SQL={$this->getSqlDirectoryPath()}");
         $commandStack->addCommand("docker-compose down");
         $commandStack->addCommand("docker-compose build");
         $commandStack->addCommand("docker-compose up -d");
@@ -46,8 +49,6 @@ class DockerCompose extends BaseParser {
         $commandStack->addCommand("mkdir {$environment->getDockerDirectory()}/$clientDir");
         $commandStack->addCommand("cp -r {$environment->getGitDirectory()}/$clientDir/docker/. {$environment->getDockerDirectory()}/$clientDir");
         $commandStack->addCommand("cd {$environment->getDockerDirectory()}/$clientDir");
-        $commandStack->addCommand("WEB={$this->getDataDirectoryPath()}");
-        $commandStack->addCommand("SQL={$this->getSqlDirectoryPath()}");
         $commandStack->addCommand("docker-compose up -d");
       }
       $commandStack->execute();
@@ -57,8 +58,6 @@ class DockerCompose extends BaseParser {
   public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $dir = $this->getEnvironment()->getDockerDirectory() . DIRECTORY_SEPARATOR . $this->getClientDirectoryName();
     $commandStack->addCommand("cd $dir");
-    $commandStack->addCommand("WEB={$this->getDataDirectoryPath()}");
-    $commandStack->addCommand("SQL={$this->getSqlDirectoryPath()}");
     $commandStack->addCommand("docker-compose down");
     $commandStack->addCommand("docker-compose rm -v");
     $commandStack->addCommand("rm -Rf $dir");

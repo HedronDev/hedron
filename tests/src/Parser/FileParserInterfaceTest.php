@@ -125,8 +125,6 @@ class FileParserInterfaceTest extends \PHPUnit_Framework_TestCase {
       "mkdir docker_dir/foo",
       "cp -r git_dir/foo/docker/. docker_dir/foo",
       "cd docker_dir/foo",
-      "WEB=foo/web",
-      "SQL=foo/sql",
       "docker-compose up -d",
     ]];
 
@@ -139,8 +137,6 @@ class FileParserInterfaceTest extends \PHPUnit_Framework_TestCase {
       "mkdir docker_dir/foo",
       "cp -r git_dir/foo/docker/. docker_dir/foo",
       "cd docker_dir/foo",
-      "WEB=foo/web",
-      "SQL=foo/sql",
       "docker-compose up -d",
     ]];
 
@@ -152,8 +148,6 @@ class FileParserInterfaceTest extends \PHPUnit_Framework_TestCase {
     $providers[] = ['\Hedron\Parser\DockerCompose', 'parse', 'docker_compose', $dchandler->reveal(), $dcfileSystem->reveal(), 1, [
       "rsync -av --delete git_dir/foo/docker/ docker_dir/foo",
       "cd docker_dir/foo",
-      "WEB=foo/web",
-      "SQL=foo/sql",
       "docker-compose down",
       "docker-compose build",
       "docker-compose up -d",
