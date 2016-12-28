@@ -31,13 +31,11 @@ class DockerCompose extends BaseParser {
       if ($environment->getHost() != 'local') {
         $commandStack->addCommand("ssh root@{$environment->getHost()}");
       }
-      if (!$this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir/.env")) {
-        $environment_file = "{$environment->getDockerDirectory()}/$clientDir/.env";
-        $contents = "WEB={$this->getDataDirectoryPath()}\nSQL={$this->getSqlDirectoryPath()}";
-        $this->fileSystem->putContents($environment_file, $contents);
-      }
       // Rebuild
       if ($this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir")) {
+        if (!$this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir/.env")) {
+          $this->createEnv();
+        }
         $commandStack->addCommand("rsync -av --delete {$environment->getGitDirectory()}/$clientDir/docker/ {$environment->getDockerDirectory()}/$clientDir");
         $commandStack->addCommand("cd {$environment->getDockerDirectory()}/$clientDir");
         $commandStack->addCommand("docker-compose down");
@@ -46,13 +44,25 @@ class DockerCompose extends BaseParser {
       }
       // Create
       else {
-        $commandStack->addCommand("mkdir {$environment->getDockerDirectory()}/$clientDir");
+        $commandStack->addCommand("mkdir -p {$environment->getDockerDirectory()}/$clientDir");
+        $commandStack->execute();
+        if (!$this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir/.env")) {
+          $this->createEnv();
+        }
         $commandStack->addCommand("cp -r {$environment->getGitDirectory()}/$clientDir/docker/. {$environment->getDockerDirectory()}/$clientDir");
         $commandStack->addCommand("cd {$environment->getDockerDirectory()}/$clientDir");
         $commandStack->addCommand("docker-compose up -d");
       }
       $commandStack->execute();
     }
+  }
+
+  protected function createEnv() {
+    $environment = $this->getEnvironment();
+    $clientDir = $this->getConfiguration()->getBranch();
+    $environment_file = "{$environment->getDockerDirectory()}/$clientDir/.env";
+    $contents = "WEB={$this->getDataDirectoryPath()}\nSQL={$this->getSqlDirectoryPath()}";
+    $this->fileSystem->putContents($environment_file, $contents);
   }
 
   public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
