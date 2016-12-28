@@ -22,14 +22,13 @@ class DockerCompose extends BaseParser {
         break;
       }
     }
-    $configuration = $this->getConfiguration();
     $environment = $this->getEnvironment();
-    $clientDir = "{$environment->getClient()}-{$configuration->getBranch()}";
+    $clientDir = $this->getClientDirectoryName();
     if (!$parse && !$this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir") && $this->fileSystem->exists("{$environment->getGitDirectory()}/$clientDir/docker/docker-compose.yml")) {
       $parse = TRUE;
     }
     if ($parse) {
-      if ($environment->getHost() != 'localhost') {
+      if ($environment->getHost() != 'local') {
         $commandStack->addCommand("ssh root@{$environment->getHost()}");
       }
       // Rebuild
