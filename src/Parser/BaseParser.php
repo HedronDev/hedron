@@ -143,6 +143,12 @@ abstract class BaseParser implements FileParserInterface {
     return str_replace(['{branch}', 'web'], [$config->getBranch(), 'sql'], $data_dir);
   }
 
+  protected function getDockerDirectoryPath() {
+    $data_dir = $this->getEnvironment()->getDockerDirectory();
+    $config = $this->getConfiguration();
+    return $data_dir . DIRECTORY_SEPARATOR . $config->getBranch();
+  }
+
   /**
    * The file system object.
    *

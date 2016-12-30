@@ -26,6 +26,10 @@ class DockerCompose extends BaseParser {
     $clientDir = $this->getConfiguration()->getBranch();
     if (!$parse && !$this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir") && $this->fileSystem->exists("{$environment->getGitDirectory()}/$clientDir/docker/docker-compose.yml")) {
       $parse = TRUE;
+      // We're going to parse, so let's make sure the web & sql volumes exists.
+      $commandStack->addCommand("mkdir -p {$this->getDataDirectoryPath()}");
+      $commandStack->addCommand("mkdir -p {$this->getSqlDirectoryPath()}");
+      $commandStack->execute();
     }
     if ($parse) {
       if ($environment->getHost() != 'local') {
