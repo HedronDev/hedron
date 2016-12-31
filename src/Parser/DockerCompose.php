@@ -74,7 +74,7 @@ class DockerCompose extends BaseParser {
   }
 
   public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
-    $dir = $this->getEnvironment()->getDockerDirectory() . DIRECTORY_SEPARATOR . $this->getClientDirectoryName();
+    $dir = $this->getDockerDirectoryPath();
     $commandStack->addCommand("cd $dir");
     $commandStack->addCommand("docker-compose down");
     $commandStack->addCommand("docker-compose rm -v");
