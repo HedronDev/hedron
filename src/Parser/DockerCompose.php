@@ -24,7 +24,7 @@ class DockerCompose extends BaseParser {
     }
     $environment = $this->getEnvironment();
     $clientDir = $this->getConfiguration()->getBranch();
-    if (!$parse && !$this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir") && $this->fileSystem->exists("{$environment->getGitDirectory()}/$clientDir/docker/docker-compose.yml")) {
+    if (!$parse && !$this->fileSystem->exists("{$this->getDockerDirectoryPath()}") && $this->fileSystem->exists("{$environment->getGitDirectory()}/$clientDir/docker/docker-compose.yml")) {
       $parse = TRUE;
     }
     if ($parse) {
@@ -39,26 +39,26 @@ class DockerCompose extends BaseParser {
         $commandStack->addCommand("ssh root@{$environment->getHost()}");
       }
       // Rebuild
-      if ($this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir")) {
-        $commandStack->addCommand("rsync -av --delete {$environment->getGitDirectory()}/$clientDir/docker/ {$environment->getDockerDirectory()}/$clientDir");
+      if ($this->fileSystem->exists("{$this->getDockerDirectoryPath()}")) {
+        $commandStack->addCommand("rsync -av --delete {$environment->getGitDirectory()}/$clientDir/docker/ {$this->getDockerDirectoryPath()}");
         $commandStack->execute();
-        if (!$this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir/.env")) {
+        if (!$this->fileSystem->exists("{$this->getDockerDirectoryPath()}/.env")) {
           $this->createEnv();
         }
-        $commandStack->addCommand("cd {$environment->getDockerDirectory()}/$clientDir");
+        $commandStack->addCommand("cd {$this->getDockerDirectoryPath()}");
         $commandStack->addCommand("docker-compose down");
         $commandStack->addCommand("docker-compose build");
         $commandStack->addCommand("docker-compose up -d");
       }
       // Create
       else {
-        $commandStack->addCommand("mkdir -p {$environment->getDockerDirectory()}/$clientDir");
+        $commandStack->addCommand("mkdir -p {$this->getDockerDirectoryPath()}");
         $commandStack->execute();
-        if (!$this->fileSystem->exists("{$environment->getDockerDirectory()}/$clientDir/.env")) {
+        if (!$this->fileSystem->exists("{$this->getDockerDirectoryPath()}/.env")) {
           $this->createEnv();
         }
-        $commandStack->addCommand("cp -r {$environment->getGitDirectory()}/$clientDir/docker/. {$environment->getDockerDirectory()}/$clientDir");
-        $commandStack->addCommand("cd {$environment->getDockerDirectory()}/$clientDir");
+        $commandStack->addCommand("cp -r {$environment->getGitDirectory()}/$clientDir/docker/. {$this->getDockerDirectoryPath()}");
+        $commandStack->addCommand("cd {$this->getDockerDirectoryPath()}");
         $commandStack->addCommand("docker-compose up -d");
       }
       $commandStack->execute();
@@ -68,7 +68,7 @@ class DockerCompose extends BaseParser {
   protected function createEnv() {
     $environment = $this->getEnvironment();
     $clientDir = $this->getConfiguration()->getBranch();
-    $environment_file = "{$environment->getDockerDirectory()}/$clientDir/.env";
+    $environment_file = "{$this->getDockerDirectoryPath()}/.env";
     $contents = "WEB={$this->getDataDirectoryPath()}\nSQL={$this->getSqlDirectoryPath()}";
     $this->fileSystem->putContents($environment_file, $contents);
   }

@@ -146,7 +146,8 @@ abstract class BaseParser implements FileParserInterface {
   protected function getDockerDirectoryPath() {
     $data_dir = $this->getEnvironment()->getDockerDirectory();
     $config = $this->getConfiguration();
-    return $data_dir . DIRECTORY_SEPARATOR . $config->getBranch();
+    $environment = $this->getEnvironment();
+    return $data_dir . DIRECTORY_SEPARATOR . $environment->getClient() . '-' . $environment->getName() . '-' . $config->getBranch();
   }
 
   /**
