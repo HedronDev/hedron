@@ -59,15 +59,13 @@ class DockerCompose extends BaseParser {
         }
         $commandStack->addCommand("cp -r {$environment->getGitDirectory()}/$clientDir/docker/. {$this->getDockerDirectoryPath()}");
         $commandStack->addCommand("cd {$this->getDockerDirectoryPath()}");
-        $commandStack->addCommand("docker-compose up -d");
+        $commandStack->addCommand("docker-compose up --build -d");
       }
       $commandStack->execute();
     }
   }
 
   protected function createEnv() {
-    $environment = $this->getEnvironment();
-    $clientDir = $this->getConfiguration()->getBranch();
     $environment_file = "{$this->getDockerDirectoryPath()}/.env";
     $contents = "WEB={$this->getDataDirectoryPath()}\nSQL={$this->getSqlDirectoryPath()}";
     $this->fileSystem->putContents($environment_file, $contents);
