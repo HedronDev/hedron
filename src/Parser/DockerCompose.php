@@ -79,6 +79,8 @@ class DockerCompose extends BaseParser {
     $commandStack->addCommand("docker-compose down");
     $commandStack->addCommand("docker-compose rm -v");
     $commandStack->addCommand("rm -Rf $dir");
+    $commandStack->addCommand("rm -Rf {$this->getDataDirectoryPath()}");
+    $commandStack->addCommand("rm -Rf {$this->getSqlDirectoryPath()}");
     $commandStack->execute();
   }
 
