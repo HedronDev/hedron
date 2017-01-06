@@ -1,3 +1,4 @@
+#!/usr/local/bin/php
 <?php
 
 $user_directory = trim(shell_exec("cd ~; pwd"));
@@ -14,14 +15,31 @@ use Hedron\Command\CommandStackFactory;
 use Hedron\File\FileSystem;
 use Hedron\Filter\ProjectTypeFilter;
 use Hedron\GitPostReceiveHandler;
-use Hedron\ParserDictionary;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
 // Extract namespaces to find any available plugins.
 $namespaces = Bootstrap::extractNamespaces($autoloader);
 $environment = Bootstrap::getEnvironmentVariables();
 
+$container = new ContainerBuilder();
+$container->setParameter('namespaces', $namespaces);
+$base_directory = __DIR__ . DIRECTORY_SEPARATOR . '..';
+$container->setParameter('base.directory', $base_directory);
+$service_directories = [
+  $base_directory,
+];
+foreach ($namespaces as $directory) {
+  // $directory will correspond to the src dir, so up one level.
+  $service_directories[] = $directory . DIRECTORY_SEPARATOR . '..';
+}
+$loader = new PhpFileLoader($container, new FileLocator($service_directories));
+$loader->load('services.php');
+
 // Setup the parser plugin dictionary and a project filter.
-$parserDictionary = new ParserDictionary($namespaces);
+/** @var \Hedron\ParserDictionary $parserDictionary */
+$parserDictionary = $container->get('dictionary.parser');
 $filter = new ProjectTypeFilter($environment->getProjectType());
 $config = Bootstrap::getConfiguration(trim(fgets(STDIN)));
 // Setup the file system.
