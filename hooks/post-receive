@@ -1,4 +1,3 @@
-#!/usr/local/bin/php
 <?php
 
 $user_directory = trim(shell_exec("cd ~; pwd"));
@@ -12,18 +11,24 @@ $autoloader = require $autoloader_file;
 
 use Hedron\Bootstrap;
 use Hedron\Command\CommandStackFactory;
+use Hedron\Event\ParserSetEvent;
 use Hedron\File\FileSystem;
-use Hedron\Filter\ProjectTypeFilter;
 use Hedron\GitPostReceiveHandler;
+use Hedron\ProjectTypeInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
+use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 
 // Extract namespaces to find any available plugins.
 $namespaces = Bootstrap::extractNamespaces($autoloader);
 $environment = Bootstrap::getEnvironmentVariables();
+$config = Bootstrap::getConfiguration(trim(fgets(STDIN)));
+// Setup the file system.
+$fileSystem = new FileSystem();
 
 $container = new ContainerBuilder();
+$container->addCompilerPass(new RegisterListenersPass());
 $container->setParameter('namespaces', $namespaces);
 $base_directory = __DIR__ . DIRECTORY_SEPARATOR . '..';
 $container->setParameter('base.directory', $base_directory);
@@ -38,14 +43,22 @@ $loader = new PhpFileLoader($container, new FileLocator($service_directories));
 $loader->load('services.php');
 
 // Setup the parser plugin dictionary and a project filter.
+/** @var \Hedron\ProjectTypeDictionary $projectTypeDictionary */
+$projectTypeDictionary = $container->get('dictionary.project.type');
+/** @var \Hedron\ProjectTypeInterface $projectType */
+$projectType = $projectTypeDictionary->createInstance($environment->getProjectType());
 /** @var \Hedron\ParserDictionary $parserDictionary */
 $parserDictionary = $container->get('dictionary.parser');
-$filter = new ProjectTypeFilter($environment->getProjectType());
-$config = Bootstrap::getConfiguration(trim(fgets(STDIN)));
-// Setup the file system.
-$fileSystem = new FileSystem();
-// Get the list of available parser for the given project type.
-$plugins = Bootstrap::getValidParsers($environment, $config, $fileSystem, $parserDictionary, $filter);
+$parserSet = $projectType::getFileParsers($parserDictionary);
+$event = new ParserSetEvent();
+$event->setParserDefinitionSet($parserSet);
+/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
+$dispatcher = $container->get('event_dispatcher');
+$dispatcher->dispatch(ProjectTypeInterface::COLLECT_PARSER_SET, $event);
+$plugins = [];
+foreach ($event->getParserDefinitionSet() as $parserDefinition) {
+  $plugins[] = $parserDictionary->createInstance($parserDefinition->getPluginId(), $parserDefinition, $environment, $config, $fileSystem);
+}
 
 // Operate against the git post-receive hook.
 $commandStackFactory = new CommandStackFactory();
