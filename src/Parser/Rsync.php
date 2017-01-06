@@ -7,11 +7,7 @@ use Hedron\GitPostReceiveHandler;
 
 /**
  * @Hedron\Annotation\Parser(
- *   pluginId = "rsync",
- *   exclude = {
- *     "drupal"
- *   },
- *   priority = "900"
+ *   pluginId = "rsync"
  * )
  */
 class Rsync extends BaseParser {

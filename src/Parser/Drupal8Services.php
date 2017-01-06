@@ -8,9 +8,7 @@ use Hedron\GitPostReceiveHandler;
 
 /**
  * @Hedron\Annotation\Parser(
- *   pluginId = "drupal_8_services",
- *   project_type = "drupal",
- *   priority = "8"
+ *   pluginId = "drupal_8_services"
  * )
  */
 class Drupal8Services extends BaseParser {

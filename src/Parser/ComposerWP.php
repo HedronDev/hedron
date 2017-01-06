@@ -12,9 +12,7 @@ use Hedron\Tools\ComposerHelperTrait;
 
 /**
  * @Hedron\Annotation\Parser(
- *   pluginId = "composer_wp",
- *   project_type = "wp",
- *   priority = "10"
+ *   pluginId = "composer_wp"
  * )
  */
 class ComposerWP extends BaseParser {

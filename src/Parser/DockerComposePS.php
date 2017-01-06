@@ -7,8 +7,7 @@ use Hedron\GitPostReceiveHandler;
 
 /**
  * @Hedron\Annotation\Parser(
- *   pluginId = "docker_compose_ps",
- *   priority = "0"
+ *   pluginId = "docker_compose_ps"
  * )
  */
 class DockerComposePS extends BaseParser {

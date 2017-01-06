@@ -7,9 +7,7 @@ use Hedron\GitPostReceiveHandler;
 
 /**
  * @Hedron\Annotation\Parser(
- *   pluginId = "composer",
- *   project_type = "php",
- *   priority = "10"
+ *   pluginId = "composer"
  * )
  */
 class ComposerJson extends BaseParser {

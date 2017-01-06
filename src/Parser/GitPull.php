@@ -7,8 +7,7 @@ use Hedron\GitPostReceiveHandler;
 
 /**
  * @Hedron\Annotation\Parser(
- *   pluginId = "git_pull",
- *   priority = "1000"
+ *   pluginId = "git_pull"
  * )
  */
 class GitPull extends BaseParser {

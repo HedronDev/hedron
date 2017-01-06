@@ -10,9 +10,7 @@ use Hedron\Tools\ComposerHelperTrait;
 
 /**
  * @Hedron\Annotation\Parser(
- *   pluginId = "composer_drupal_8",
- *   project_type = "drupal",
- *   priority = "10"
+ *   pluginId = "composer_drupal_8"
  * )
  */
 class ComposerDrupal8 extends BaseParser {
