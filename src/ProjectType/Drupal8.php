@@ -8,7 +8,7 @@ use Hedron\ParserDictionary;
 
 /**
  * @ProjectType(
- *   id = "drupal8",
+ *   pluginId = "drupal8",
  *   label = "Drupal 8"
  * )
  */
