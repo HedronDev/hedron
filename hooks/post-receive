@@ -24,7 +24,7 @@ $container->setParameter('autoloader', $autoloader);
 $container->setParameter('namespaces', Bootstrap::extractNamespaces($autoloader));
 $container->setParameter('command_input', trim(fgets(STDIN)));
 $container->setParameter('environment', Bootstrap::getEnvironmentVariables());
-$container->setParameter('configuration', Bootstrap::getConfiguration(trim(fgets(STDIN))));
+$container->setParameter('configuration', Bootstrap::getConfiguration($container->getParameter('command_input')));
 $container->setParameter('file.system', new FileSystem());
 $container->setParameter('command.stack.factory', new CommandStackFactory());
 
