@@ -13,4 +13,3 @@ $container->register('dictionary.project.type', ProjectTypeDictionary::class)
   ->addArgument('%namespaces%');
 
 $container->setDefinition('event_dispatcher', new Definition(ContainerAwareEventDispatcher::class, [new Reference('service_container')]));
-

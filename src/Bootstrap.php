@@ -3,7 +3,11 @@
 namespace Hedron;
 
 use Composer\Autoload\ClassLoader;
-use EclipseGc\Plugin\Filter\PluginDefinitionFilterInterface;
+use Hedron\Event\ParserSetEvent;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Yaml\Yaml;
 use Hedron\Configuration\EnvironmentVariables;
 use Hedron\Configuration\ParserVariableConfiguration;
@@ -70,43 +74,53 @@ class Bootstrap {
   }
 
   /**
-   * Gets an array of valid parser plugins for the given filters.
+   * Iterate through all namespace dirs and add services to the container.
    *
+   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+   *   The container builder.
+   * @param \Traversable $namespaces
+   *   The namespaces.
+   */
+  public static function collectServices(ContainerBuilder $container, \Traversable $namespaces) {
+    $service_directories = [];
+    foreach ($namespaces as $directory) {
+      // $directory will correspond to the src dir, so up one level.
+      $service_directories[] = $directory . DIRECTORY_SEPARATOR . '..';
+    }
+    $loader = new PhpFileLoader($container, new FileLocator($service_directories));
+    $loader->load('services.php');
+  }
+
+  /**
+   * Gets an array of valid parser plugins for the project type.
+   *
+   * @param \Hedron\ProjectTypeDictionary $projectTypeDictionary
+   *   The project type from which to extract parsers.
+   * @param \Hedron\ParserDictionary $parserDictionary
+   *   The parser dictionary.
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher
+   *   The event dispatcher.
    * @param \Hedron\Configuration\EnvironmentVariables $environment
    *   The environment configuration.
    * @param \Hedron\Configuration\ParserVariableConfiguration $configuration
    *   The git repository configuration.
    * @param \Hedron\File\FileSystemInterface $fileSystem
    *   A file system object.
-   * @param \Hedron\ParserDictionary $dictionary
-   *   The parser plugin dictionary
-   * @param \EclipseGc\Plugin\Filter\PluginDefinitionFilterInterface[] ...$filters
-   *   The list of filters to apply.
    *
    * @return \Hedron\FileParserInterface[]
    *   The valid parser plugins.
    */
-  public static function getValidParsers(EnvironmentVariables $environment, ParserVariableConfiguration $configuration, FileSystemInterface $fileSystem, ParserDictionary $dictionary, PluginDefinitionFilterInterface ...$filters) {
+  public static function getValidParsers(ProjectTypeDictionary $projectTypeDictionary, ParserDictionary $parserDictionary, EventDispatcherInterface $dispatcher, EnvironmentVariables $environment, ParserVariableConfiguration $configuration, FileSystemInterface $fileSystem) {
+    /** @var \Hedron\ProjectTypeInterface $projectType */
+    $projectType = $projectTypeDictionary->createInstance($environment->getProjectType());
+    $parserSet = $projectType::getFileParsers($parserDictionary);
+    $event = new ParserSetEvent($projectType, $parserSet);
+    $dispatcher->dispatch(ProjectTypeInterface::COLLECT_PARSER_SET, $event);
     $plugins = [];
-    foreach ($dictionary->getFilteredDefinitions(...$filters) as $pluginDefinition) {
-      $plugins[] = $dictionary->createInstance($pluginDefinition->getPluginId(), $pluginDefinition, $environment, $configuration, $fileSystem);
+    foreach ($event->getParserDefinitionSet() as $parserDefinition) {
+      $plugins[] = $parserDictionary->createInstance($parserDefinition->getPluginId(), $parserDefinition, $environment, $configuration, $fileSystem);
     }
-    usort($plugins, '\Hedron\Bootstrap::sortPlugins');
     return $plugins;
-  }
-
-  /**
-   * Sorts FileParserInterface objects by their priority.
-   *
-   * @param \Hedron\FileParserInterface $a
-   *   The first parser.
-   * @param \Hedron\FileParserInterface $b
-   *   The second parser.
-   *
-   * @return bool
-   */
-  public static function sortPlugins(FileParserInterface $a, FileParserInterface $b) {
-    return $a->getPluginDefinition()->getPriority() < $b->getPluginDefinition()->getPriority();
   }
 
 }

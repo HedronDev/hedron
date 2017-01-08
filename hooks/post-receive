@@ -1,3 +1,4 @@
+#!/usr/local/bin/php
 <?php
 
 $user_directory = trim(shell_exec("cd ~; pwd"));
@@ -11,58 +12,35 @@ $autoloader = require $autoloader_file;
 
 use Hedron\Bootstrap;
 use Hedron\Command\CommandStackFactory;
-use Hedron\Event\ParserSetEvent;
 use Hedron\File\FileSystem;
 use Hedron\GitPostReceiveHandler;
-use Hedron\ProjectTypeInterface;
-use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
-
-// Extract namespaces to find any available plugins.
-$namespaces = Bootstrap::extractNamespaces($autoloader);
-$environment = Bootstrap::getEnvironmentVariables();
-$config = Bootstrap::getConfiguration(trim(fgets(STDIN)));
-// Setup the file system.
-$fileSystem = new FileSystem();
 
 $container = new ContainerBuilder();
 $container->addCompilerPass(new RegisterListenersPass());
-$container->setParameter('namespaces', $namespaces);
-$base_directory = __DIR__ . DIRECTORY_SEPARATOR . '..';
-$container->setParameter('base.directory', $base_directory);
-$service_directories = [
-  $base_directory,
-];
-foreach ($namespaces as $directory) {
-  // $directory will correspond to the src dir, so up one level.
-  $service_directories[] = $directory . DIRECTORY_SEPARATOR . '..';
-}
-$loader = new PhpFileLoader($container, new FileLocator($service_directories));
-$loader->load('services.php');
+$container->setParameter('autoloader', $autoloader);
+// Extract namespaces to find any available plugins.
+$container->setParameter('namespaces', Bootstrap::extractNamespaces($autoloader));
+$container->setParameter('command_input', trim(fgets(STDIN)));
+$container->setParameter('environment', Bootstrap::getEnvironmentVariables());
+$container->setParameter('configuration', Bootstrap::getConfiguration(trim(fgets(STDIN))));
+$container->setParameter('file.system', new FileSystem());
+$container->setParameter('command.stack.factory', new CommandStackFactory());
 
-// Setup the parser plugin dictionary and a project filter.
-/** @var \Hedron\ProjectTypeDictionary $projectTypeDictionary */
-$projectTypeDictionary = $container->get('dictionary.project.type');
-/** @var \Hedron\ProjectTypeInterface $projectType */
-$projectType = $projectTypeDictionary->createInstance($environment->getProjectType());
-/** @var \Hedron\ParserDictionary $parserDictionary */
-$parserDictionary = $container->get('dictionary.parser');
-$parserSet = $projectType::getFileParsers($parserDictionary);
-$event = new ParserSetEvent();
-$event->setParserDefinitionSet($parserSet);
-/** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
-$dispatcher = $container->get('event_dispatcher');
-$dispatcher->dispatch(ProjectTypeInterface::COLLECT_PARSER_SET, $event);
-$plugins = [];
-foreach ($event->getParserDefinitionSet() as $parserDefinition) {
-  $plugins[] = $parserDictionary->createInstance($parserDefinition->getPluginId(), $parserDefinition, $environment, $config, $fileSystem);
-}
+Bootstrap::collectServices($container, $container->getParameter('namespaces'));
+/** @var \Hedron\FileParserInterface[] $plugins */
+$plugins = Bootstrap::getValidParsers(
+  $container->get('dictionary.project.type'),
+  $container->get('dictionary.parser'),
+  $container->get('event_dispatcher'),
+  $container->getParameter('environment'),
+  $container->getParameter('configuration'),
+  $container->getParameter('file.system')
+);
 
 // Operate against the git post-receive hook.
-$commandStackFactory = new CommandStackFactory();
-$console = new GitPostReceiveHandler($config, $commandStackFactory, ...$plugins);
+$console = new GitPostReceiveHandler($container->getParameter('configuration'), $container->getParameter('command.stack.factory'), ...$plugins);
 $console->run();
 
 ?>

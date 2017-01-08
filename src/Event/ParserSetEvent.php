@@ -3,6 +3,7 @@
 namespace Hedron\Event;
 
 use EclipseGc\Plugin\Discovery\PluginDefinitionSet;
+use Hedron\ProjectTypeInterface;
 use Symfony\Component\EventDispatcher\Event;
 
 class ParserSetEvent extends Event {
@@ -13,6 +14,18 @@ class ParserSetEvent extends Event {
    * @var PluginDefinitionSet
    */
   protected $set;
+
+  /**
+   * The project.
+   *
+   * @var \Hedron\ProjectTypeInterface
+   */
+  protected $project;
+
+  public function __construct(ProjectTypeInterface $project, PluginDefinitionSet $set) {
+    $this->project = $project;
+    $this->set = $set;
+  }
 
   /**
    * Set the parser plugin definition set.
@@ -30,6 +43,10 @@ class ParserSetEvent extends Event {
    */
   public function getParserDefinitionSet() : PluginDefinitionSet {
     return $this->set;
+  }
+
+  public function getProject() : ProjectTypeInterface {
+    return $this->project;
   }
 
 }

@@ -12,6 +12,9 @@ class ParserDictionary implements PluginDictionaryInterface {
 
   /**
    * ParserDictionary constructor.
+   *
+   * @param \Traversable $namespaces
+   *   A traversable list of namespaces for this application.
    */
   public function __construct(\Traversable $namespaces) {
     $this->discovery = new AnnotatedPluginDiscovery($namespaces, 'Parser', 'Hedron\FileParserInterface', 'Hedron\Annotation\Parser');
