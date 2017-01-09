@@ -20,10 +20,11 @@ class Drupal8 extends ProjectTypeBase {
   public static function getFileParsers(ParserDictionary $dictionary) : PluginDefinitionSet {
     $parsers = [
       'git_pull',
-      'docker_compose',
+      'ensure_shared_volumes',
       'composer_drupal_8',
       'drupal_8_services',
       'drupal_8_settings',
+      'docker_compose',
       'docker_compose_ps',
     ];
     $definitions = [];

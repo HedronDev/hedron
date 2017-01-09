@@ -27,13 +27,6 @@ class DockerCompose extends BaseParser {
       $parse = TRUE;
     }
     if ($parse) {
-      // We're going to parse, so let's make sure the web & sql volumes exists.
-      if (!$this->getFileSystem()->exists($this->getDataDirectoryPath())) {
-        $commandStack->addCommand("mkdir -p {$this->getDataDirectoryPath()}");
-      }
-      if (!$this->getFileSystem()->exists($this->getSqlDirectoryPath())) {
-        $commandStack->addCommand("mkdir -p {$this->getSqlDirectoryPath()}");
-      }
       if ($environment->getHost() != 'local') {
         $commandStack->addCommand("ssh root@{$environment->getHost()}");
       }
@@ -76,8 +69,6 @@ class DockerCompose extends BaseParser {
     $commandStack->addCommand("docker-compose down");
     $commandStack->addCommand("docker-compose rm -v");
     $commandStack->addCommand("rm -Rf $dir");
-    $commandStack->addCommand("rm -Rf {$this->getDataDirectoryPath()}");
-    $commandStack->addCommand("rm -Rf {$this->getSqlDirectoryPath()}");
     $commandStack->execute();
   }
 
