@@ -19,7 +19,7 @@ class GitPull extends BaseParser {
     $configuration = $this->getConfiguration();
     $environment = $this->getEnvironment();
     $clientDir = $this->getGitDirectoryPath();
-    if ($this->fileSystem->exists($clientDir)) {
+    if ($this->getFileSystem()->exists($clientDir)) {
       $commandStack->addCommand("unset GIT_DIR");
       $commandStack->addCommand("git -C $clientDir pull");
     }

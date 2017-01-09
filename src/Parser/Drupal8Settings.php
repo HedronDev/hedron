@@ -21,7 +21,7 @@ class Drupal8Settings extends BaseParser {
    */
   public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $settings_path = "{$this->getDataDirectoryPath()}/sites/default";
-    if ($this->fileSystem->exists($settings_path . DIRECTORY_SEPARATOR . "settings.php")) {
+    if ($this->getFileSystem()->exists($settings_path . DIRECTORY_SEPARATOR . "settings.php")) {
       unlink($settings_path . DIRECTORY_SEPARATOR . "settings.php");
     }
   }

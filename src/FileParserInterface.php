@@ -24,6 +24,14 @@ interface FileParserInterface extends PluginInterface {
    */
   public function getEnvironment();
 
+
+  /**
+   * The project plugin for the current environment settings.
+   *
+   * @return \Hedron\ProjectTypeInterface
+   */
+  public function getProject();
+
   /**
    * Parses the changes in the handler and executes appropriate commands.
    *

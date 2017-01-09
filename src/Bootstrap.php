@@ -92,33 +92,38 @@ class Bootstrap {
   }
 
   /**
-   * Gets an array of valid parser plugins for the project type.
+   * Get a project plugin for the current environment settings.
    *
    * @param \Hedron\ProjectTypeDictionary $projectTypeDictionary
-   *   The project type from which to extract parsers.
+   *   The project type dictionary.
+   *
+   * @return \Hedron\ProjectTypeInterface
+   *   The current project type plugin.
+   */
+  public static function getProject(ProjectTypeDictionary $projectTypeDictionary) {
+    return $projectTypeDictionary->getCurrentProject();
+  }
+
+  /**
+   * Gets an array of valid parser plugins for the project type.
+   *
+   * @param \Hedron\ProjectTypeInterface $project
+   *   The project plugin for the current environment settings.
    * @param \Hedron\ParserDictionary $parserDictionary
    *   The parser dictionary.
    * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher
    *   The event dispatcher.
-   * @param \Hedron\Configuration\EnvironmentVariables $environment
-   *   The environment configuration.
-   * @param \Hedron\Configuration\ParserVariableConfiguration $configuration
-   *   The git repository configuration.
-   * @param \Hedron\File\FileSystemInterface $fileSystem
-   *   A file system object.
    *
    * @return \Hedron\FileParserInterface[]
    *   The valid parser plugins.
    */
-  public static function getValidParsers(ProjectTypeDictionary $projectTypeDictionary, ParserDictionary $parserDictionary, EventDispatcherInterface $dispatcher, EnvironmentVariables $environment, ParserVariableConfiguration $configuration, FileSystemInterface $fileSystem) {
-    /** @var \Hedron\ProjectTypeInterface $projectType */
-    $projectType = $projectTypeDictionary->createInstance($environment->getProjectType());
-    $parserSet = $projectType::getFileParsers($parserDictionary);
-    $event = new ParserSetEvent($projectType, $parserSet);
+  public static function getValidParsers(ProjectTypeInterface $project, ParserDictionary $parserDictionary, EventDispatcherInterface $dispatcher) {
+    $parserSet = $project::getFileParsers($parserDictionary);
+    $event = new ParserSetEvent($project, $parserSet);
     $dispatcher->dispatch(ProjectTypeInterface::COLLECT_PARSER_SET, $event);
     $plugins = [];
     foreach ($event->getParserDefinitionSet() as $parserDefinition) {
-      $plugins[] = $parserDictionary->createInstance($parserDefinition->getPluginId(), $parserDefinition, $environment, $configuration, $fileSystem);
+      $plugins[] = $parserDictionary->createInstance($parserDefinition->getPluginId(), $parserDefinition, $project);
     }
     return $plugins;
   }

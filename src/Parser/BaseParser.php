@@ -4,11 +4,9 @@ namespace Hedron\Parser;
 
 use EclipseGc\Plugin\PluginDefinitionInterface;
 use Hedron\Command\CommandStackInterface;
-use Hedron\Configuration\EnvironmentVariables;
-use Hedron\Configuration\ParserVariableConfiguration;
-use Hedron\File\FileSystemInterface;
 use Hedron\FileParserInterface;
 use Hedron\GitPostReceiveHandler;
+use Hedron\ProjectTypeInterface;
 
 /**
  * A base implementation for any parser plugin to extend.
@@ -30,25 +28,11 @@ abstract class BaseParser implements FileParserInterface {
   protected $pluginDefinition;
 
   /**
-   * The environment configuration.
+   * The project plugin for the current environment settings.
    *
-   * @var \Hedron\Configuration\EnvironmentVariables
+   * @var \Hedron\ProjectTypeInterface
    */
-  protected $environment;
-
-  /**
-   * The git repository configuration.
-   *
-   * @var \Hedron\Configuration\ParserVariableConfiguration
-   */
-  protected $configuration;
-
-  /**
-   * The file system.
-   *
-   * @var \Hedron\File\FileSystemInterface
-   */
-  protected $fileSystem;
+  protected $project;
 
   /**
    * BaseParser constructor.
@@ -57,19 +41,13 @@ abstract class BaseParser implements FileParserInterface {
    *   The plugin id.
    * @param \EclipseGc\Plugin\PluginDefinitionInterface $definition
    *   The plugin definition.
-   * @param \Hedron\Configuration\EnvironmentVariables $environment
-   *   The environment object
-   * @param \Hedron\Configuration\ParserVariableConfiguration $configuration
-   *   The configuration from the git post-receive hook.
-   * @param \Hedron\File\FileSystemInterface $fileSystem
-   *   The file system object.
+   * @param \Hedron\ProjectTypeInterface $project
+   *   The project plugin for the current environment settings.
    */
-  public function __construct(string $pluginId, PluginDefinitionInterface $definition, EnvironmentVariables $environment, ParserVariableConfiguration $configuration, FileSystemInterface $fileSystem) {
+  public function __construct(string $pluginId, PluginDefinitionInterface $definition, ProjectTypeInterface $project) {
     $this->pluginId = $pluginId;
     $this->pluginDefinition = $definition;
-    $this->environment = $environment;
-    $this->configuration = $configuration;
-    $this->fileSystem = $fileSystem;
+    $this->project = $project;
   }
 
   /**
@@ -90,14 +68,21 @@ abstract class BaseParser implements FileParserInterface {
    * {@inheritdoc}
    */
   public function getConfiguration() {
-    return $this->configuration;
+    return $this->project->getConfiguration();
   }
 
   /**
    * {@inheritdoc}
    */
   public function getEnvironment() {
-    return $this->environment;
+    return $this->project->getEnvironment();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getProject() {
+    return $this->project;
   }
 
   /**
@@ -156,7 +141,7 @@ abstract class BaseParser implements FileParserInterface {
    * @return \Hedron\File\FileSystemInterface
    */
   protected function getFileSystem() {
-    return $this->fileSystem;
+    return $this->project->getFileSystem();
   }
 
 }

@@ -18,7 +18,7 @@ class Drupal8Services extends BaseParser {
    */
   public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
     $settings_path = "{$this->getDataDirectoryPath()}/sites/default";
-    if ($this->fileSystem->exists($settings_path . DIRECTORY_SEPARATOR . "services.yml")) {
+    if ($this->getFileSystem()->exists($settings_path . DIRECTORY_SEPARATOR . "services.yml")) {
       unlink($settings_path . DIRECTORY_SEPARATOR . "services.yml");
     }
   }

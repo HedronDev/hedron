@@ -23,25 +23,25 @@ class DockerCompose extends BaseParser {
     }
     $environment = $this->getEnvironment();
     $clientDir = $this->getConfiguration()->getBranch();
-    if (!$parse && !$this->fileSystem->exists("{$this->getDockerDirectoryPath()}") && $this->fileSystem->exists("{$environment->getGitDirectory()}/$clientDir/docker/docker-compose.yml")) {
+    if (!$parse && !$this->getFileSystem()->exists("{$this->getDockerDirectoryPath()}") && $this->getFileSystem()->exists("{$environment->getGitDirectory()}/$clientDir/docker/docker-compose.yml")) {
       $parse = TRUE;
     }
     if ($parse) {
       // We're going to parse, so let's make sure the web & sql volumes exists.
-      if (!$this->fileSystem->exists($this->getDataDirectoryPath())) {
+      if (!$this->getFileSystem()->exists($this->getDataDirectoryPath())) {
         $commandStack->addCommand("mkdir -p {$this->getDataDirectoryPath()}");
       }
-      if (!$this->fileSystem->exists($this->getSqlDirectoryPath())) {
+      if (!$this->getFileSystem()->exists($this->getSqlDirectoryPath())) {
         $commandStack->addCommand("mkdir -p {$this->getSqlDirectoryPath()}");
       }
       if ($environment->getHost() != 'local') {
         $commandStack->addCommand("ssh root@{$environment->getHost()}");
       }
       // Rebuild
-      if ($this->fileSystem->exists("{$this->getDockerDirectoryPath()}")) {
+      if ($this->getFileSystem()->exists("{$this->getDockerDirectoryPath()}")) {
         $commandStack->addCommand("rsync -av --delete {$environment->getGitDirectory()}/$clientDir/docker/ {$this->getDockerDirectoryPath()}");
         $commandStack->execute();
-        if (!$this->fileSystem->exists("{$this->getDockerDirectoryPath()}/.env")) {
+        if (!$this->getFileSystem()->exists("{$this->getDockerDirectoryPath()}/.env")) {
           $this->createEnv();
         }
         $commandStack->addCommand("cd {$this->getDockerDirectoryPath()}");
@@ -53,7 +53,7 @@ class DockerCompose extends BaseParser {
       else {
         $commandStack->addCommand("mkdir -p {$this->getDockerDirectoryPath()}");
         $commandStack->execute();
-        if (!$this->fileSystem->exists("{$this->getDockerDirectoryPath()}/.env")) {
+        if (!$this->getFileSystem()->exists("{$this->getDockerDirectoryPath()}/.env")) {
           $this->createEnv();
         }
         $commandStack->addCommand("cp -r {$environment->getGitDirectory()}/$clientDir/docker/. {$this->getDockerDirectoryPath()}");
@@ -67,7 +67,7 @@ class DockerCompose extends BaseParser {
   protected function createEnv() {
     $environment_file = "{$this->getDockerDirectoryPath()}/.env";
     $contents = "WEB={$this->getDataDirectoryPath()}\nSQL={$this->getSqlDirectoryPath()}";
-    $this->fileSystem->putContents($environment_file, $contents);
+    $this->getFileSystem()->putContents($environment_file, $contents);
   }
 
   public function destroy(GitPostReceiveHandler $handler, CommandStackInterface $commandStack) {
