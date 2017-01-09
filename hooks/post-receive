@@ -1,4 +1,3 @@
-#!/usr/local/bin/php
 <?php
 
 $user_directory = trim(shell_exec("cd ~; pwd"));
