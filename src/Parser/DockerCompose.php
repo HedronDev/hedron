@@ -34,9 +34,7 @@ class DockerCompose extends BaseParser {
       if ($this->getFileSystem()->exists("{$this->getDockerDirectoryPath()}")) {
         $commandStack->addCommand("rsync -av --delete {$environment->getGitDirectory()}/$clientDir/docker/ {$this->getDockerDirectoryPath()}");
         $commandStack->execute();
-        if (!$this->getFileSystem()->exists("{$this->getDockerDirectoryPath()}/.env")) {
-          $this->createEnv();
-        }
+        $this->createEnv();
         $commandStack->addCommand("cd {$this->getDockerDirectoryPath()}");
         $commandStack->addCommand("docker-compose down");
         $commandStack->addCommand("docker-compose build");
@@ -46,9 +44,7 @@ class DockerCompose extends BaseParser {
       else {
         $commandStack->addCommand("mkdir -p {$this->getDockerDirectoryPath()}");
         $commandStack->execute();
-        if (!$this->getFileSystem()->exists("{$this->getDockerDirectoryPath()}/.env")) {
-          $this->createEnv();
-        }
+        $this->createEnv();
         $commandStack->addCommand("cp -r {$environment->getGitDirectory()}/$clientDir/docker/. {$this->getDockerDirectoryPath()}");
         $commandStack->addCommand("cd {$this->getDockerDirectoryPath()}");
         $commandStack->addCommand("docker-compose up --build -d");
@@ -59,7 +55,14 @@ class DockerCompose extends BaseParser {
 
   protected function createEnv() {
     $environment_file = "{$this->getDockerDirectoryPath()}/.env";
-    $contents = "WEB={$this->getDataDirectoryPath()}\nSQL={$this->getSqlDirectoryPath()}";
+    if (!$this->getFileSystem()->exists($environment_file)) {
+      $contents = '';
+    }
+    else {
+      $contents = $this->getFileSystem()->getContents($environment_file);
+      $contents .= "\n";
+    }
+    $contents .= "HEDRON_WEB_VOL={$this->getDataDirectoryPath()}\nHEDRON_SQL_VOL={$this->getSqlDirectoryPath()}";
     $this->getFileSystem()->putContents($environment_file, $contents);
   }
 
