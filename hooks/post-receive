@@ -9,6 +9,7 @@ if (!file_exists($autoloader_file)) {
 /** @var \Composer\Autoload\ClassLoader $autoloader */
 $autoloader = require $autoloader_file;
 
+use EclipseGc\Plugin\Namespaces;
 use Hedron\Bootstrap;
 use Hedron\Command\CommandStackFactory;
 use Hedron\File\FileSystem;
@@ -20,7 +21,7 @@ $container = new ContainerBuilder();
 $container->addCompilerPass(new RegisterListenersPass());
 $container->setParameter('autoloader', $autoloader);
 // Extract namespaces to find any available plugins.
-$container->setParameter('namespaces', Bootstrap::extractNamespaces($autoloader));
+$container->setParameter('namespaces', Namespaces::extractNamespaces($autoloader));
 $container->setParameter('command_input', trim(fgets(STDIN)));
 $container->setParameter('environment', Bootstrap::getEnvironmentVariables());
 $container->setParameter('configuration', Bootstrap::getConfiguration($container->getParameter('command_input')));

@@ -7,7 +7,7 @@ use Composer\Semver\Comparator;
 trait ComposerHelperTrait {
 
   /**
-   * Merges the original composer file with the new file provided by drupal.
+   * Merges the original composer file with a new composer file.
    *
    * This ensures that the composer.json file that is going to be installed
    * will have all the appropriate requirements documented by the git
@@ -29,7 +29,6 @@ trait ComposerHelperTrait {
     $composer_content = file_get_contents($composer_file);
     $replace_composer = json_decode($composer_content);
     $changes = $this->calculateRequirementChanges($replace_composer, $new_composer);
-    print print_r($changes, TRUE);
     if (file_put_contents($composer_file, json_encode($new_composer, JSON_PRETTY_PRINT)) !== FALSE) {
       return $changes;
     }
@@ -53,8 +52,8 @@ trait ComposerHelperTrait {
       $is_array = is_array($values);
       $values = (array) $values;
       if (isset($new_composer->{$key})) {
-        $drupal_values = (array) $new_composer->{$key};
-        $values = array_merge($drupal_values, $values);
+        $value = (array) $new_composer->{$key};
+        $values = array_merge($value, $values);
       }
       $new_composer->{$key} = $is_array ? $values : (object) $values;
     }
