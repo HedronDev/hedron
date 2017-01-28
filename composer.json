@@ -1,6 +1,7 @@
 {
     "name": "hedron/hedron",
     "description": "A git based development and hosting utility.",
+    "license": "GPL-3.0+",
     "authors": [
         {
             "name": "Kris Vanderwater",
