@@ -1,3 +1,3 @@
 # Hedron
 
-For more information see: [https://hedron.sh](https://hedron.sh)
+For more information see: [http://hedron.sh](http://hedron.sh)
